@@ -7,7 +7,12 @@ defmodule ElNino.Application do
     bot_options = %{
       name: ElNinoBot,
       consumer: ElNino.Consumer,
-      intents: [:direct_messages, :guild_messages, :message_content],
+      intents: [
+        :guilds,
+        :guild_voice_states,
+        :guild_messages,
+        :message_content
+      ],
       wrapped_token: fn -> System.fetch_env!("DISCORD_TOKEN") end
     }
 
