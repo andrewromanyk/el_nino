@@ -9,12 +9,11 @@ plugins:
     allowSearch: true
     allowDirectVideoIds: true
     allowDirectPlaylistIds: true
-    # Clients are queried in the order they are given
     clients:
-      - MUSIC
-      - ANDROID_TESTSUITE
-      - WEB
-      - TVHTML5EMBEDDED
+      - TV
+    oauth:
+      enabled: true
+      refreshToken: "${YT_OAUTH_TOKEN}" # Refresh token for the YouTube Data API, required for OAuth2.0
 lavalink:
   plugins:
     - dependency: "dev.lavalink.youtube:youtube-plugin:1.18.1"

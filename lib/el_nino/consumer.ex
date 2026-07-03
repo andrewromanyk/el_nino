@@ -44,6 +44,14 @@ defmodule ElNino.Consumer do
     ElNino.Commands.Pause.handle(interaction)
   end
 
+  def handle_event({:VOICE_STATE_UPDATE, _, _} = event) do
+    ElNino.Handlers.Voice.handle_event(event)
+  end
+
+  def handle_event({:VOICE_SERVER_UPDATE, _, _} = event) do
+    ElNino.Handlers.Voice.handle_event(event)
+  end
+
   def handle_event({:VOICE_SPEAKING_UPDATE, payload, _ws_state}) do
     Logger.debug("VOICE SPEAKING UPDATE #{inspect(payload)}")
   end
