@@ -6,6 +6,7 @@
   "jason": {:hex, :jason, "1.4.5", "2e3a008590b0b8d7388c20293e9dcc9cf3e5d642fd2a114e4cbbb52e595d940a", [:mix], [{:decimal, "~> 1.0 or ~> 2.0 or ~> 3.0", [hex: :decimal, repo: "hexpm", optional: true]}], "hexpm", "b0c823996102bcd0239b3c2444eb00409b72f6a140c1950bc8b457d836b30684"},
   "mime": {:hex, :mime, "2.0.7", "b8d739037be7cd402aee1ba0306edfdef982687ee7e9859bee6198c1e7e2f128", [:mix], [], "hexpm", "6171188e399ee16023ffc5b76ce445eb6d9672e2e241d2df6050f3c771e80ccd"},
   "nostrum": {:git, "https://github.com/Kraigie/nostrum.git", "03b06ba1c5094b83991097b1ce76b5fe2740324c", []},
+  "qex": {:hex, :qex, "0.5.2", "a0c861a2de2380314c23ef592349824ca9016c5845380667ff1d9a22a8796f9b", [:mix], [], "hexpm", "6fb81bf3ae354a9abb471b9561538ea3e8540125d803b00f45cbccff52f00496"},
   "rustler_precompiled": {:hex, :rustler_precompiled, "0.9.0", "3a052eda09f3d2436364645cc1f13279cf95db310eb0c17b0d8f25484b233aa0", [:mix], [{:rustler, "~> 0.23", [hex: :rustler, repo: "hexpm", optional: true]}], "hexpm", "471d97315bd3bf7b64623418b3693eedd8e47de3d1cb79a0ac8f9da7d770d94c"},
   "salchicha": {:hex, :salchicha, "0.5.0", "b05b404550b433494fce1abdb23314afa1f1c72aef898f2c77de6554cf58235e", [:mix], [], "hexpm", "b3e0575cd5a01672d9cefc4ec50bd56662a4d970e2ae39d8de6cf82f09012fc8"},
   "sourceror": {:hex, :sourceror, "1.12.2", "85bfd48159f020c0cbfc72f289f11456fdc05dc43719b6f2589fb969faefa113", [:mix], [], "hexpm", "da37d3da09c5b890528802c7056a8f585a061973820d7656b6e3649c14f0e9cb"},

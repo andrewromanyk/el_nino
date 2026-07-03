@@ -24,6 +24,8 @@ defmodule ElNino.Commands.Play do
   end
 
   def handle(%Interaction{data: %{options: [%{value: url}]}, guild_id: guild_id} = interaction) do
+    ElNino.SongQueue.push(url)
+
     Common.join_voice_chat(interaction)
     Nostrum.Voice.play(guild_id, url, :ytdl)
 

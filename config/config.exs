@@ -1,3 +1,5 @@
 import Config
 
-config :nostrum, :youtubedl, "yt-dlp"
+config :nostrum,
+  youtubedl: "yt-dlp",
+  streamlink: nil

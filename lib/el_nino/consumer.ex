@@ -20,6 +20,8 @@ defmodule ElNino.Consumer do
     end
   end
 
+  # Registering all slash commands on bot ready event
+  # TODO: Redo to register only when needed
   def handle_event({:READY, _, _}) do
     Enum.each(@commands, fn command -> register_command(command.definition()) end)
   end

@@ -17,7 +17,8 @@ defmodule ElNino.Application do
     }
 
     children = [
-      {Nostrum.Bot, bot_options}
+      {Nostrum.Bot, bot_options},
+      {ElNino.SongQueue, []}
     ]
 
     Supervisor.start_link(children, strategy: :one_for_one)
