@@ -59,6 +59,16 @@ defmodule ElNino.Lavalink.Client do
     )
   end
 
+  def update_player(session_id, guild_id, paused: paused) do
+    Req.patch!("#{@base_url}/sessions/#{session_id}/players/#{guild_id}",
+      headers: @headers ++ @header_json,
+      params: [noReplace: false],
+      json: %{
+        paused: paused
+      }
+    )
+  end
+
   def destroy_player(session_id, guild_id) do
     Req.delete!("#{@base_url}/sessions/#{session_id}/players/#{guild_id}",
       headers: @headers

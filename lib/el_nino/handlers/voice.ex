@@ -44,6 +44,9 @@ defmodule ElNino.Handlers.Voice do
       channel_id: cid
     })
 
+    encoded_track = ElNino.Lavalink.Client.load_tracks(ElNino.SongQueue.pop())
+    ElNino.Lavalink.Client.update_player(lavalink_sid, guild_id, encoded_track: encoded_track)
+
     :ets.delete(:voice_states, guild_id)
   end
 
