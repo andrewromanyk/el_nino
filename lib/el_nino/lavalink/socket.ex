@@ -18,7 +18,8 @@ defmodule ElNino.Lavalink.Socket do
 
     WebSockex.start_link(url, __MODULE__, %{session_id: nil},
       extra_headers: headers,
-      name: __MODULE__
+      name: __MODULE__,
+      handle_initial_conn_failure: true
     )
   end
 

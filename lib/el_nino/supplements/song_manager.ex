@@ -14,12 +14,24 @@ defmodule ElNino.SongManager do
     GenServer.call(__MODULE__, {:play, song, guild_id})
   end
 
-  def pause do
-    GenServer.call(__MODULE__, :pause)
+  def pause(guild_id) do
+    GenServer.call(__MODULE__, {:pause, guild_id})
+  end
+
+  def resume(guild_id) do
+    GenServer.call(__MODULE__, {:resume, guild_id})
+  end
+
+  def leave(guild_id) do
+    GenServer.call(__MODULE__, {:leave, guild_id})
   end
 
   def connected(guild_id) do
     GenServer.call(__MODULE__, {:connected, guild_id})
+  end
+
+  def disconnected(guild_id) do
+    GenServer.call(__MODULE__, {:disconnected, guild_id})
   end
 
 
@@ -78,12 +90,12 @@ defmodule ElNino.SongManager do
   end
 
   @impl true
-  def handle_call(:pause, _from, {status, current_song} = state) do
+  def handle_call({:pause, guild_id}, _from, {status, current_song} = state) do
     case status do
       :playing ->
         ElNino.Lavalink.Client.update_player(
           :persistent_term.get(:lavalink_session_id),
-          :persistent_term.get(:guild_id),
+          guild_id,
           paused: true
         )
 
@@ -92,5 +104,43 @@ defmodule ElNino.SongManager do
       _ ->
         {:noreply, state}
     end
+  end
+
+  @impl true
+  def handle_call({:resume, guild_id}, _from, {status, current_song} = state) do
+    case status do
+      :paused ->
+        ElNino.Lavalink.Client.update_player(
+          :persistent_term.get(:lavalink_session_id),
+          guild_id,
+          paused: false
+        )
+
+        {:reply, {:ok, "Resumed."}, {:playing, current_song}}
+
+      _ ->
+        {:noreply, state}
+    end
+  end
+
+  @impl true
+  def handle_call({:leave, guild_id}, _from, _state) do
+    ElNino.Lavalink.Client.destroy_player(
+      :persistent_term.get(:lavalink_session_id),
+      guild_id
+    )
+    ElNino.SongQueue.clear()
+    Nostrum.Voice.leave_channel(guild_id)
+    {:reply, {:ok, "Left voice channel."}, {:not_connected, nil}}
+  end
+
+  @impl true
+  def handle_call({:disconnected, guild_id}, _from, _state) do
+    ElNino.Lavalink.Client.destroy_player(
+      :persistent_term.get(:lavalink_session_id),
+      guild_id
+    )
+    ElNino.SongQueue.clear()
+    {:reply, {:ok, "Disconnected from voice channel."}, {:not_connected, nil}}
   end
 end

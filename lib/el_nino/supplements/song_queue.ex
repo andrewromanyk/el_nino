@@ -26,4 +26,8 @@ defmodule ElNino.SongQueue do
       end
     end)
   end
+
+  def clear() do
+    Agent.update(__MODULE__, fn _queue -> Qex.new() end)
+  end
 end

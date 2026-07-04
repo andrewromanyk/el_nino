@@ -3,7 +3,6 @@ defmodule ElNino.Commands.Pause do
   Command that pauses currently playing music.
   """
 
-  alias ElNino.Common
   alias Nostrum.Struct.Interaction
 
   def name(), do: "pause"
@@ -15,17 +14,7 @@ defmodule ElNino.Commands.Pause do
     }
   end
 
-  def handle(%Interaction{guild_id: guild_id} = interaction) do
-    Common.join_voice_chat(interaction)
-    Nostrum.Voice.pause(guild_id)
-
-    response = %{
-      type: 4,
-      data: %{
-        content: "Paused music."
-      }
-    }
-
-    Nostrum.Api.Interaction.create_response(interaction, response)
+  def handle(%Interaction{guild_id: guild_id} = _interaction) do
+    ElNino.SongManager.pause(guild_id)
   end
 end

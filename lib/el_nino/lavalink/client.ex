@@ -43,7 +43,9 @@ defmodule ElNino.Lavalink.Client do
       headers: @headers ++ @header_json,
       params: [noReplace: false],
       json: %{
-        encodedTrack: encoded_track
+        track: %{
+          encoded: encoded_track
+        }
       }
     )
   end
@@ -60,6 +62,12 @@ defmodule ElNino.Lavalink.Client do
 
   def destroy_player(session_id, guild_id) do
     Req.delete!("#{@base_url}/sessions/#{session_id}/players/#{guild_id}",
+      headers: @headers
+    )
+  end
+
+  def get_players(session_id) do
+    Req.get!("#{@base_url}/sessions/#{session_id}/players",
       headers: @headers
     )
   end

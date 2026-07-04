@@ -8,7 +8,9 @@ defmodule ElNino.Consumer do
   @commands [
     ElNino.Commands.Echo,
     ElNino.Commands.Play,
-    ElNino.Commands.Pause
+    ElNino.Commands.Pause,
+    ElNino.Commands.Resume,
+    ElNino.Commands.Leave
   ]
 
   defp register_command(command), do: register_command(966_052_378_023_444_560, command)
@@ -42,6 +44,18 @@ defmodule ElNino.Consumer do
         {:INTERACTION_CREATE, %Interaction{data: %{name: "pause"}} = interaction, _ws_state}
       ) do
     ElNino.Commands.Pause.handle(interaction)
+  end
+
+  def handle_event(
+        {:INTERACTION_CREATE, %Interaction{data: %{name: "resume"}} = interaction, _ws_state}
+      ) do
+    ElNino.Commands.Resume.handle(interaction)
+  end
+
+  def handle_event(
+        {:INTERACTION_CREATE, %Interaction{data: %{name: "leave"}} = interaction, _ws_state}
+      ) do
+    ElNino.Commands.Leave.handle(interaction)
   end
 
   def handle_event({:VOICE_STATE_UPDATE, _, _} = event) do
