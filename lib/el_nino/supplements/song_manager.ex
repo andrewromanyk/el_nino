@@ -59,7 +59,7 @@ defmodule ElNino.SongManager do
         ElNino.Lavalink.Client.update_player(
           :persistent_term.get(:lavalink_session_id),
           guild_id,
-          encoded_track: ElNino.Lavalink.Client.load_tracks(song)
+          encoded_track: song
         )
 
         {:reply, {:ok, "Song is now playing."}, {:playing, song}}
@@ -80,7 +80,7 @@ defmodule ElNino.SongManager do
         ElNino.Lavalink.Client.update_player(
           :persistent_term.get(:lavalink_session_id),
           guild_id,
-          encoded_track: ElNino.Lavalink.Client.load_tracks(song)
+          encoded_track: song
         )
 
         {:reply, {:ok, "Song is now playing."}, {:playing, song}}
@@ -151,5 +151,18 @@ defmodule ElNino.SongManager do
     :ets.delete(:voice_states, guild_id)
     ElNino.SongQueue.clear()
     {:reply, {:ok, "Disconnected from voice channel."}, {:not_connected, nil}}
+  end
+
+  @impl true
+  def handle_call({:play_next}, _from, _) do
+    case ElNino.SongQueue.pop() do
+      nil ->
+        Logger.info("SongManager: No more songs in the queue. Waiting for new songs.")
+        {:reply, {:ok, "No more songs in the queue."}, {:waiting, nil}}
+
+      next_song ->
+        Logger.info("SongManager: Playing next song from queue: #{next_song}.")
+        {:reply, {:ok, "Playing next song: #{next_song}."}, {:playing, next_song}}
+    end
   end
 end

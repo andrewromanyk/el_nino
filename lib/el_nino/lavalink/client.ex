@@ -11,6 +11,14 @@ defmodule ElNino.Lavalink.Client do
       params: [identifier: "ytsearch:#{query}"]
     )
     |> Map.get(:body)
+  end
+
+  def load_tracks_encoded(query) do
+    Req.get!("#{@base_url}/loadtracks",
+      headers: @headers,
+      params: [identifier: "ytsearch:#{query}"]
+    )
+    |> Map.get(:body)
     |> Map.get("data")
     |> Enum.at(0)
     |> Map.get("encoded")
