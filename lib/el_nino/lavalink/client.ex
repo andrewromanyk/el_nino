@@ -5,17 +5,6 @@ defmodule ElNino.Lavalink.Client do
   @header_json [{"Content-Type", "application/json"}]
   @base_url "http://localhost:2333/v4"
 
-  def load_tracks("scsearch:" <> query) do
-    Req.get!("#{@base_url}/loadtracks",
-      headers: @headers,
-      params: [identifier: "scsearch:#{query}"]
-    )
-    |> Map.get(:body)
-    |> Map.get("data")
-    |> Enum.at(0)
-    |> Map.get("encoded")
-  end
-
   def load_tracks(query) do
     Req.get!("#{@base_url}/loadtracks",
       headers: @headers,

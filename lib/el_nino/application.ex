@@ -19,7 +19,8 @@ defmodule ElNino.Application do
     children = [
       {Nostrum.Bot, bot_options},
       {ElNino.SongQueue, []},
-      {ElNino.Lavalink.Supervisor, []}
+      {ElNino.Lavalink.Supervisor, []},
+      {ElNino.SongManager, []}
     ]
 
     :ets.new(:voice_states, [:set, :public, :named_table])

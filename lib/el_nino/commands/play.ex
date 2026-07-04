@@ -23,21 +23,8 @@ defmodule ElNino.Commands.Play do
     }
   end
 
-  def handle(%Interaction{data: %{options: [%{value: url}]}, guild_id: _guild_id} = interaction) do
-    ElNino.SongQueue.push(url)
+  def handle(%Interaction{data: %{options: [%{value: url}]}, guild_id: guild_id} = interaction) do
     Common.join_voice_chat(interaction)
-
-    # Old impl, which relies on built-in yt-dl
-    # In the process of switching to lavalink
-    # Nostrum.Voice.play(guild_id, url, :ytdl)
-
-    # response = %{
-    #   type: 4,
-    #   data: %{
-    #     content: "Playing music from #{url}"
-    #   }
-    # }
-
-    # Nostrum.Api.Interaction.create_response(interaction, response)
+    ElNino.SongManager.play(url, guild_id)
   end
 end

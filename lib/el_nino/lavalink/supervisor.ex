@@ -8,7 +8,7 @@ defmodule ElNino.Lavalink.Supervisor do
   @impl true
   def init(_init_arg) do
     children = [
-      {ElNino.Lavalink.Socket, bot_id: 1521137252518985788}
+      {ElNino.Lavalink.Socket, bot_id: 1_521_137_252_518_985_788}
     ]
 
     Supervisor.init(children, strategy: :one_for_one, max_restarts: 10, max_seconds: 5)

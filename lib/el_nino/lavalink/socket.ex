@@ -31,6 +31,7 @@ defmodule ElNino.Lavalink.Socket do
   @impl true
   def handle_disconnect(connection_status_map, state) do
     Logger.warning("Disconnected from Lavalink: #{inspect(connection_status_map)}")
+    Process.sleep(1500)
     {:reconnect, state}
   end
 
