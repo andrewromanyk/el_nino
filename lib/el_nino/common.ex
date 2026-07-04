@@ -19,6 +19,7 @@ defmodule ElNino.Common do
     end
   end
 
-  def join_voice_chat(%Interaction{guild_id: guild_id} = interaction),
-    do: Nostrum.Voice.join_channel(guild_id, get_voice_channel_of_interaction(interaction))
+  def join_voice_chat(%Interaction{guild_id: guild_id} = interaction) do
+    Nostrum.Api.Self.update_voice_state(guild_id, get_voice_channel_of_interaction(interaction))
+  end
 end

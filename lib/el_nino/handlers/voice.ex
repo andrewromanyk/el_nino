@@ -6,7 +6,6 @@ defmodule ElNino.Handlers.Voice do
   alias Nostrum.Struct.Event.VoiceState
   alias Nostrum.Struct.Event.VoiceServerUpdate
 
-
   def handle_event(
         {:VOICE_STATE_UPDATE,
          %VoiceState{
@@ -17,7 +16,7 @@ defmodule ElNino.Handlers.Voice do
       ) do
     if user_id == Nostrum.Cache.Me.get().id do
       Logger.info("VoiceState: Bot has been kicked from the voice channel for Guild #{guild_id}.")
-      ElNino.SongManager.leave(guild_id)
+      ElNino.SongManager.disconnected(guild_id)
     end
   end
 

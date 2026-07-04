@@ -34,7 +34,6 @@ defmodule ElNino.SongManager do
     GenServer.call(__MODULE__, {:disconnected, guild_id})
   end
 
-
   @impl true
   def init(_args) do
     # 1st element - states: not_connected, connecting, waiting (for song), playing, paused
@@ -48,16 +47,21 @@ defmodule ElNino.SongManager do
   def handle_call({:play, song, guild_id}, _from, {status, _} = state) do
     case status do
       :not_connected ->
-        Logger.info("SongManager: Received play command while not connected. Waiting for connection.")
+        Logger.info(
+          "SongManager: Received play command while not connected. Waiting for connection."
+        )
+
         {:reply, {:ok, "Connecting to voice channel."}, {:connecting, song}}
 
       :waiting ->
         Logger.info("SongManager: Received play command while waiting. Updating song to #{song}.")
+
         ElNino.Lavalink.Client.update_player(
           :persistent_term.get(:lavalink_session_id),
           guild_id,
           encoded_track: ElNino.Lavalink.Client.load_tracks(song)
         )
+
         {:reply, {:ok, "Song is now playing."}, {:playing, song}}
 
       _ ->
@@ -72,6 +76,7 @@ defmodule ElNino.SongManager do
     case status do
       :connecting ->
         Logger.info("SongManager: Connected to voice channel. Starting playback of #{song}.")
+
         ElNino.Lavalink.Client.update_player(
           :persistent_term.get(:lavalink_session_id),
           guild_id,
@@ -129,6 +134,8 @@ defmodule ElNino.SongManager do
       :persistent_term.get(:lavalink_session_id),
       guild_id
     )
+
+    :ets.delete(:voice_states, guild_id)
     ElNino.SongQueue.clear()
     Nostrum.Voice.leave_channel(guild_id)
     {:reply, {:ok, "Left voice channel."}, {:not_connected, nil}}
@@ -140,6 +147,8 @@ defmodule ElNino.SongManager do
       :persistent_term.get(:lavalink_session_id),
       guild_id
     )
+
+    :ets.delete(:voice_states, guild_id)
     ElNino.SongQueue.clear()
     {:reply, {:ok, "Disconnected from voice channel."}, {:not_connected, nil}}
   end

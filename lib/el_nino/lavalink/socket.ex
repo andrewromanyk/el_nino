@@ -50,6 +50,42 @@ defmodule ElNino.Lavalink.Socket do
         Logger.info("Track ended in guild #{guild_id}")
         {:ok, state}
 
+      %{
+        "op" => "event",
+        "type" => "TrackExceptionEvent",
+        "guildId" => guild_id,
+        "track" => track,
+        "exception" => exception
+      } = _event ->
+        Logger.info(
+          "Track exception in guild #{guild_id}. Track: #{track}. Exception: #{inspect(exception)}"
+        )
+
+        {:ok, state}
+
+      %{
+        "op" => "event",
+        "type" => "TrackStuckEvent",
+        "guildId" => guild_id,
+        "thresholdMs" => threshold_ms
+      } = _event ->
+        Logger.info("Track stuck in guild #{guild_id}. Threshold: #{threshold_ms}.")
+        {:ok, state}
+
+      %{
+        "op" => "event",
+        "type" => "WebSocketClosedEvent",
+        "guildId" => guild_id,
+        "code" => code,
+        "reason" => reason,
+        "byRemote" => by_remote
+      } = _event ->
+        Logger.info(
+          "WebSocket closed in guild #{guild_id}. Code: #{code}. Reason: <#{reason}>. By Remote: #{by_remote}"
+        )
+
+        {:ok, state}
+
       _ ->
         {:ok, state}
     end
