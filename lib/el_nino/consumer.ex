@@ -31,7 +31,7 @@ defmodule ElNino.Consumer do
       Enum.map(@commands, & &1.definition())
     ) do
       {:ok, _} -> IO.puts("Successfully registered all commands for guild #{guild_id}!")
-      {:error, %{message: m}} -> IO.puts("Failed to register commands for guild #{guild_id}! Error: #{m}")
+      {:error, %Nostrum.Error.ApiError{response: response}} -> IO.puts("Failed to register commands for guild #{guild_id}! Error: #{response}")
     end
   end
 

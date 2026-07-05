@@ -12,7 +12,7 @@ defmodule ElNino.Commands.Play do
   def definition() do
     %{
       name: name(),
-      description: "Play music in the current voice channel.",
+      description: "Play music in the current voice channel or adds it to the queue if one is currently playing.",
       options: [
         %{
           type: 3,

@@ -91,7 +91,7 @@ defmodule ElNino.SongManager do
 
       :not_connected ->
         Logger.warning("SongManager: Received connected event while not connecting.")
-        {:noreply, {:waiting, song}}
+        {:reply, {:ok, "Connected to voice channel."}, {:waiting, song}}
 
       _ ->
         {:noreply, state}
