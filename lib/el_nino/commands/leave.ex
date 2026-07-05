@@ -19,7 +19,8 @@ defmodule ElNino.Commands.Leave do
       nil ->
         ElNino.Response.response_with_embed(
           interaction,
-          ElNino.Embeds.one_liner_author("Not in a voice channel.")
+          ElNino.Embeds.one_liner_author("Not in a voice channel."),
+          true
         )
 
       _channel_id ->
@@ -27,7 +28,8 @@ defmodule ElNino.Commands.Leave do
 
         ElNino.Response.response_with_embed(
           interaction,
-          ElNino.Embeds.one_liner_author("Left voice channel")
+          ElNino.Embeds.one_liner_author("Left voice channel"),
+          true
         )
     end
   end

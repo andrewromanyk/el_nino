@@ -20,8 +20,8 @@ defmodule ElNino.Response do
   @doc """
   Creates a response for an interaction with the given embed.
   """
-  def response_with_embed(%Interaction{} = interaction, embed) do
-    response(interaction, 4, %{embeds: [embed]})
+  def response_with_embed(%Interaction{} = interaction, embed, ephemeral \\ false) do
+    response(interaction, 4, %{embeds: [embed], flags: if(ephemeral, do: 64, else: 0)})
   end
 
   @doc """

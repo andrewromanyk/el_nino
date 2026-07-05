@@ -14,12 +14,13 @@ defmodule ElNino.Lavalink.Client do
 
       track ->
         Logger.info("Lavalink: Found track #{track["info"]["title"]} for query #{query}.")
-        {:ok, track}
+        {:ok, track |> IO.inspect(label: "Lavalink Track Info")}
     end
   end
 
   def load_tracks_first(query, prefix \\ "") do
     case load_tracks(query, prefix) |> Map.get("data") do
+      %{"tracks" => [track | _]} -> track
       %{} = track -> track
       [track | _] -> track
       _ -> nil
@@ -78,7 +79,8 @@ defmodule ElNino.Lavalink.Client do
     )
   end
 
-  def update_player(session_id, guild_id, volume: volume) when is_number(volume) and volume >= 0 and volume <= 1000 do
+  def update_player(session_id, guild_id, volume: volume)
+      when is_number(volume) and volume >= 0 and volume <= 1000 do
     Req.patch!("#{@base_url}/sessions/#{session_id}/players/#{guild_id}",
       headers: @headers ++ @header_json,
       params: [noReplace: false],

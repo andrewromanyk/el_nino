@@ -45,7 +45,10 @@ defmodule ElNino.Consumer do
     register_all_commands_guild(966_052_378_023_444_560)
   end
 
-  def handle_event({:INTERACTION_CREATE, %Interaction{guild_id: guild_id, channel_id: channel_id} = interaction, _ws_state}) do
+  def handle_event(
+        {:INTERACTION_CREATE,
+         %Interaction{guild_id: guild_id, channel_id: channel_id} = interaction, _ws_state}
+      ) do
     if not is_nil(guild_id) and not is_nil(channel_id) do
       :ets.insert(:last_interaction, {guild_id, channel_id})
     end
@@ -95,5 +98,4 @@ defmodule ElNino.Consumer do
   defp route_command(%Interaction{data: %{name: "leave"}} = interaction) do
     ElNino.Commands.Leave.handle(interaction)
   end
-
 end

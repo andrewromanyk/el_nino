@@ -29,6 +29,7 @@ defmodule ElNino.Common do
 
   def join_voice_chat(%Interaction{guild_id: guild_id} = interaction) do
     Logger.info("Joining voice chat for guild #{guild_id}.")
+
     case get_voice_channel_of_interaction(interaction) do
       nil ->
         ElNino.Response.response_with_embed(
@@ -70,5 +71,4 @@ defmodule ElNino.Common do
 
     updated_state
   end
-
 end

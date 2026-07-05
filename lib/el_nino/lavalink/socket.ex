@@ -55,16 +55,18 @@ defmodule ElNino.Lavalink.Socket do
         Logger.info("Track ended in guild #{guild_id}")
 
         case reason do
-          "FINISHED" ->
+          "finished" ->
             Logger.info(
               "Track finished playing in guild #{guild_id}. Attempting to play next song."
             )
 
             ElNino.SongManager.play_next(guild_id)
 
+          "replaced" ->
+            Logger.info("Track was replaced in guild #{guild_id}.")
+
           _ ->
             Logger.info("Track ended for unknown reason in guild #{guild_id}: #{reason}")
-
             ElNino.SongManager.play_next(guild_id)
         end
 
