@@ -4,6 +4,7 @@ defmodule ElNino.Commands.Resume do
   """
 
   alias Nostrum.Struct.Interaction
+  alias ElNino.Colors
 
   def name(), do: "resume"
 
@@ -14,7 +15,19 @@ defmodule ElNino.Commands.Resume do
     }
   end
 
-  def handle(%Interaction{guild_id: guild_id} = _interaction) do
-    ElNino.SongManager.resume(guild_id)
+  def handle(%Interaction{guild_id: guild_id} = interaction) do
+    case ElNino.SongManager.resume(guild_id) do
+      {:ok, _message} ->
+        ElNino.Response.response_with_embed(
+          interaction,
+          ElNino.Embeds.one_liner_author("Resumed playback")
+        )
+
+      {:error, message} ->
+        ElNino.Response.response_with_embed(
+          interaction,
+          ElNino.Embeds.one_liner_author(message, Colors.warn_color())
+        )
+    end
   end
 end

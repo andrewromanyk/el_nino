@@ -4,63 +4,45 @@ defmodule ElNino.Commands.PlayNext do
   """
 
   alias ElNino.Common
-  alias Nostrum.Struct.{Interaction, Embed}
-  alias Nostrum.Api
+  alias Nostrum.Struct.Interaction
+  alias ElNino.Colors
 
   def name(), do: "play_next"
 
   def definition() do
     %{
       name: name(),
-      description: "Play the next song in the queue.",
+      description: "Play the next song in the queue."
     }
   end
 
   def handle(%Interaction{guild_id: guild_id} = interaction) do
-    case Common.get_voice_channel_of_interaction(interaction) do
+    case Common.get_voice_channel_of_bot(guild_id) do
       nil ->
-        Api.Interaction.create_response(interaction.id, interaction.token, %{
-          type: 4,
-          data: %{
-            embeds: [
-              %Embed{
-                title: "Error",
-                description: "You must be in a voice channel to use this command.",
-                color: 6_036_244
-              }
-            ]
-          }
-        })
+        ElNino.Response.response_with_embed(
+          interaction,
+          ElNino.Embeds.one_liner_author(
+            "Bot not in voice channel.",
+            Colors.warn_color()
+          )
+        )
 
       _channel_id ->
         case ElNino.SongManager.play_next(guild_id) do
-          {:ok, message} ->
-            Api.Interaction.create_response(interaction.id, interaction.token, %{
-              type: 4,
-              data: %{
-                embeds: [
-                  %Embed{
-                    title: "Success",
-                    description: message,
-                    color: 6_036_244
-                  }
-                ]
-              }
-            })
+          {:ok, _message} ->
+            ElNino.Response.response_with_embed(
+              interaction,
+              ElNino.Embeds.one_liner_author("Playing next track")
+            )
 
           {:error, message} ->
-            Api.Interaction.create_response(interaction.id, interaction.token, %{
-              type: 4,
-              data: %{
-                embeds: [
-                  %Embed{
-                    title: "Error",
-                    description: message,
-                    color: 6_036_244
-                  }
-                ]
-              }
-            })
+            ElNino.Response.response_with_embed(
+              interaction,
+              ElNino.Embeds.one_liner_author(
+                "Cannot play the next track: #{message}",
+                Colors.error_color()
+              )
+            )
         end
     end
   end

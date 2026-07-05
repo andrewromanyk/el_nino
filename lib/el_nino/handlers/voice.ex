@@ -17,6 +17,10 @@ defmodule ElNino.Handlers.Voice do
     if user_id == Nostrum.Cache.Me.get().id do
       Logger.info("VoiceState: Bot has been kicked from the voice channel for Guild #{guild_id}.")
       ElNino.SongManager.disconnected(guild_id)
+      ElNino.Response.message_with_embed(
+        :ets.lookup(:last_interaction, guild_id) |> List.first() |> elem(1),
+        ElNino.Embeds.one_liner_author("Bot has been disconnected from the voice channel.")
+      )
     end
   end
 
@@ -28,9 +32,9 @@ defmodule ElNino.Handlers.Voice do
            user_id: user_id,
            channel_id: channel_id
          }, _ws_state}
-      )
-  do
+      ) do
     if user_id == Nostrum.Cache.Me.get().id do
+      Logger.info("VoiceState: Bot has joined a voice channel for Guild #{guild_id}.")
       merge_and_check(guild_id, %{session_id: session_id, channel_id: channel_id})
     end
   end
@@ -38,21 +42,13 @@ defmodule ElNino.Handlers.Voice do
   def handle_event(
         {:VOICE_SERVER_UPDATE,
          %VoiceServerUpdate{guild_id: guild_id, token: token, endpoint: endpoint}, _ws_state}
-      )
-  do
+      ) do
+    Logger.info("VoiceServer: Received voice server update for Guild #{guild_id}.")
     merge_and_check(guild_id, %{token: token, endpoint: endpoint})
   end
 
   defp merge_and_check(guild_id, new_data) do
-    current_state =
-      case :ets.lookup(:voice_states, guild_id) do
-        [{^guild_id, state}] -> state
-        [] -> %{}
-      end
-
-    updated_state = Map.merge(current_state, new_data)
-
-    :ets.insert(:voice_states, {guild_id, updated_state})
+    updated_state = ElNino.Common.merge_ets(:voice_states, guild_id, new_data)
 
     attempt_lavalink_dispatch(guild_id, updated_state)
   end
@@ -63,8 +59,7 @@ defmodule ElNino.Handlers.Voice do
          endpoint: e,
          channel_id: cid
        })
-       when not is_nil(sid) and not is_nil(t) and not is_nil(e) and not is_nil(cid)
-  do
+       when not is_nil(sid) and not is_nil(t) and not is_nil(e) and not is_nil(cid) do
     Logger.info("Voice credentials acquired for Guild #{guild_id}. Dispatching to Lavalink.")
 
     lavalink_sid = :persistent_term.get(:lavalink_session_id)

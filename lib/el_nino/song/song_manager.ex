@@ -26,6 +26,10 @@ defmodule ElNino.SongManager do
     GenServer.call(__MODULE__, {:play_next, guild_id})
   end
 
+  def volume(guild_id, volume) do
+    GenServer.call(__MODULE__, {:volume, guild_id, volume})
+  end
+
   def leave(guild_id) do
     GenServer.call(__MODULE__, {:leave, guild_id})
   end
@@ -128,10 +132,13 @@ defmodule ElNino.SongManager do
           paused: false
         )
 
-        {:reply, {:ok, "Resumed."}, {:playing, current_song}}
+        {:reply, {:ok, "Playback was resumed."}, {:playing, current_song}}
+
+      :playing ->
+        {:reply, {:error, "Track is already playing."}, state}
 
       _ ->
-        {:noreply, state}
+        {:reply, {:error, "Unknown status."}, state}
     end
   end
 
@@ -150,6 +157,7 @@ defmodule ElNino.SongManager do
 
   @impl true
   def handle_call({:disconnected, guild_id}, _from, _state) do
+    Logger.info("SongManager: Bot has been disconnected from the voice channel for Guild #{guild_id}.")
     ElNino.Lavalink.Client.destroy_player(
       :persistent_term.get(:lavalink_session_id),
       guild_id
@@ -165,29 +173,49 @@ defmodule ElNino.SongManager do
     case status do
       :playing ->
         Logger.info("SongManager: Received play_next command. Playing next song.")
+
         case ElNino.SongQueue.pop() do
           nil ->
             Logger.info("SongManager: No more songs in the queue. Waiting for new songs.")
+
             ElNino.Lavalink.Client.update_player(
               :persistent_term.get(:lavalink_session_id),
               guild_id,
               encoded_track: nil
             )
+
             {:reply, {:ok, "No more songs in the queue."}, {:waiting, nil}}
 
           next_song ->
             Logger.info("SongManager: Playing next song from queue: #{next_song}.")
+
             ElNino.Lavalink.Client.update_player(
               :persistent_term.get(:lavalink_session_id),
               guild_id,
               encoded_track: next_song
             )
+
             {:reply, {:ok, "Playing next song."}, {:playing, next_song}}
         end
 
+      :disconnected ->
+        Logger.info("SongManager: Received play_next command while disconnected. Ignoring.")
+        {:reply, {:error, "Bot not in a voice channel."}, {:not_connected, nil}}
+
       _ ->
         Logger.info("SongManager: Received play_next command while #{status}. Skipping action.")
-        {:reply, {:ok, "Cannot play next song."}, {:waiting, nil}}
+        {:reply, {:error, "Probably not in a voice channel."}, {:waiting, nil}}
     end
+  end
+
+  @impl true
+  def handle_call({:volume, guild_id, volume}, _from, state) do
+    ElNino.Lavalink.Client.update_player(
+      :persistent_term.get(:lavalink_session_id),
+      guild_id,
+      volume: volume
+    )
+
+    {:reply, {:ok, "Volume set to #{volume}."}, state}
   end
 end

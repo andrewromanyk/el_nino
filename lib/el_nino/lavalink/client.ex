@@ -4,33 +4,25 @@ defmodule ElNino.Lavalink.Client do
   @headers [{"Authorization", "youshallnotpass"}]
   @header_json [{"Content-Type", "application/json"}]
   @base_url "http://localhost:2333/v4"
-  @sources ["youtube.com", "music.youtube.com", "soundcloud.com"]
-  @prefixes ["ytsearch:", "ytmsearch:", "scsearch:"]
+  @prefixes ["", "ytmsearch:", "ytsearch:", "scsearch:"]
 
   def load_tracks_best(query) do
-    case String.contains?(query, @sources) do
-      true ->
-        Logger.info("Lavalink: Loading tracks for query #{query} without prefix.")
-        load_tracks_first(query)
+    case Enum.find_value(@prefixes, fn prefix -> load_tracks_first(query, prefix) end) do
+      nil ->
+        Logger.info("Lavalink: No tracks found for query #{query} with any prefix.")
+        {:error, "No tracks found for the given query."}
 
-      false ->
-        case Enum.find_value(@prefixes, fn prefix -> load_tracks_first(query, prefix) end) do
-          {:ok, track} ->
-            Logger.info("Lavalink: Found track #{track["info"]["title"]} for query #{query}.")
-            {:ok, track}
-          {:error, message} ->
-            Logger.info("Lavalink: No tracks found for query #{query} with any prefix.")
-            {:error, message}
-        end
+      track ->
+        Logger.info("Lavalink: Found track #{track["info"]["title"]} for query #{query}.")
+        {:ok, track}
     end
   end
 
-  @spec load_tracks_first(any(), any()) :: {:error, <<_::288>>} | {:ok, any()}
   def load_tracks_first(query, prefix \\ "") do
     case load_tracks(query, prefix) |> Map.get("data") do
-      %{} = track -> {:ok, track}
-      [track | _] -> {:ok, track}
-      _ -> {:error, "No tracks found for the given query."}
+      %{} = track -> track
+      [track | _] -> track
+      _ -> nil
     end
   end
 
@@ -82,6 +74,16 @@ defmodule ElNino.Lavalink.Client do
       params: [noReplace: false],
       json: %{
         paused: paused
+      }
+    )
+  end
+
+  def update_player(session_id, guild_id, volume: volume) when is_number(volume) and volume >= 0 and volume <= 1000 do
+    Req.patch!("#{@base_url}/sessions/#{session_id}/players/#{guild_id}",
+      headers: @headers ++ @header_json,
+      params: [noReplace: false],
+      json: %{
+        volume: volume
       }
     )
   end

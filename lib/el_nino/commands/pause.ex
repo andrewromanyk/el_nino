@@ -4,6 +4,7 @@ defmodule ElNino.Commands.Pause do
   """
 
   alias Nostrum.Struct.Interaction
+  alias ElNino.Colors
 
   def name(), do: "pause"
 
@@ -16,11 +17,17 @@ defmodule ElNino.Commands.Pause do
 
   def handle(%Interaction{guild_id: guild_id} = interaction) do
     case ElNino.SongManager.pause(guild_id) do
-      {:ok, message} ->
-        ElNino.Response.response_with_embed(interaction, ElNino.Embeds.info("Paused", message))
+      {:ok, _message} ->
+        ElNino.Response.response_with_embed(
+          interaction,
+          ElNino.Embeds.one_liner_author("Paused playback")
+        )
 
       {:error, message} ->
-        ElNino.Response.response_with_embed(interaction, ElNino.Embeds.info("Cannot pause", message))
+        ElNino.Response.response_with_embed(
+          interaction,
+          ElNino.Embeds.one_liner_author("Cannot pause: #{message}", Colors.error_color())
+        )
     end
   end
 end

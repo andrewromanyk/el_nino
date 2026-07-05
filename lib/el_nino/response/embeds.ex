@@ -4,24 +4,19 @@ defmodule ElNino.Embeds do
   """
 
   alias Nostrum.Struct.Embed
-
-  @doc """
-  Returns color for info embeds.
-  """
-  def info_color, do: 6_036_244
-
-  def error_color, do: 16_711_680
+  alias ElNino.Colors
 
   @doc """
   Creates an embed for a song with the given title, URL, and thumbnail URL.
   """
-  def song_added_to_queue(title, uri, author, artwork_url) do
+  def song_added_to_queue(title, uri, author, artwork_url, length) do
     %Embed{}
     |> Embed.put_author("Added track to queue", nil, nil)
     |> Embed.put_title(title)
     |> Embed.put_url(uri)
-    |> Embed.put_field("Author", author)
-    |> Embed.put_color(info_color())
+    |> Embed.put_field("Author", author, true)
+    |> Embed.put_field("Length", ElNino.Common.ms_to_str(length), true)
+    |> Embed.put_color(Colors.info_color())
     |> Embed.put_thumbnail(artwork_url)
   end
 
@@ -33,7 +28,7 @@ defmodule ElNino.Embeds do
     |> Embed.put_author("Error", nil, nil)
     |> Embed.put_title(title)
     |> Embed.put_description(message)
-    |> Embed.put_color(error_color())
+    |> Embed.put_color(Colors.error_color())
   end
 
   @doc """
@@ -44,6 +39,12 @@ defmodule ElNino.Embeds do
     |> Embed.put_author("Information", nil, nil)
     |> Embed.put_title(title)
     |> Embed.put_description(description)
-    |> Embed.put_color(info_color())
+    |> Embed.put_color(Colors.info_color())
+  end
+
+  def one_liner_author(text, color \\ Colors.info_color()) do
+    %Embed{}
+    |> Embed.put_author(text, nil, nil)
+    |> Embed.put_color(color)
   end
 end

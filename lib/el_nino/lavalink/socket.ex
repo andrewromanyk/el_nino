@@ -49,10 +49,25 @@ defmodule ElNino.Lavalink.Socket do
       %{
         "op" => "event",
         "type" => "TrackEndEvent",
-        "guildId" => guild_id
+        "guildId" => guild_id,
+        "reason" => reason
       } = _event ->
         Logger.info("Track ended in guild #{guild_id}")
-        ElNino.SongManager.play_next(guild_id)
+
+        case reason do
+          "FINISHED" ->
+            Logger.info(
+              "Track finished playing in guild #{guild_id}. Attempting to play next song."
+            )
+
+            ElNino.SongManager.play_next(guild_id)
+
+          _ ->
+            Logger.info("Track ended for unknown reason in guild #{guild_id}: #{reason}")
+
+            ElNino.SongManager.play_next(guild_id)
+        end
+
         {:ok, state}
 
       %{

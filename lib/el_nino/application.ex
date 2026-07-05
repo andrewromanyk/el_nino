@@ -24,6 +24,7 @@ defmodule ElNino.Application do
     ]
 
     :ets.new(:voice_states, [:set, :public, :named_table])
+    :ets.new(:last_interaction, [:set, :public, :named_table])
     Supervisor.start_link(children, strategy: :one_for_one)
   end
 end

@@ -14,7 +14,21 @@ defmodule ElNino.Commands.Leave do
     }
   end
 
-  def handle(%Interaction{guild_id: guild_id} = _interaction) do
-    ElNino.SongManager.leave(guild_id)
+  def handle(%Interaction{guild_id: guild_id} = interaction) do
+    case ElNino.Common.get_voice_channel_of_bot(guild_id) do
+      nil ->
+        ElNino.Response.response_with_embed(
+          interaction,
+          ElNino.Embeds.one_liner_author("Not in a voice channel.")
+        )
+
+      _channel_id ->
+        ElNino.SongManager.leave(guild_id)
+
+        ElNino.Response.response_with_embed(
+          interaction,
+          ElNino.Embeds.one_liner_author("Left voice channel")
+        )
+    end
   end
 end

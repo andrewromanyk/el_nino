@@ -23,4 +23,13 @@ defmodule ElNino.Response do
   def response_with_embed(%Interaction{} = interaction, embed) do
     response(interaction, 4, %{embeds: [embed]})
   end
+
+  @doc """
+  Creates a message without an interaction.
+  """
+  def message_with_embed(channel_id, embed) do
+    Nostrum.Api.Message.create(channel_id, %{
+      embeds: [embed]
+    })
+  end
 end
