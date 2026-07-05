@@ -13,4 +13,4 @@ Currently a single bot instance can work only on a single server.
 
 ### LavaLink
 
-The bot delegate music playback to a separate [LavaLink](https://github.com/lavalink-devs/Lavalink) instance, created via [docker](/lavalink/).
+The bot delegate music playback to a separate [LavaLink](https://github.com/lavalink-devs/Lavalink) instance, created via [docker](lavalink/).
