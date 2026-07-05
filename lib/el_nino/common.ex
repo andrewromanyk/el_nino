@@ -14,10 +14,18 @@ defmodule ElNino.Common do
       {:error, reason} ->
         Logger.error("Failed to get guild #{guild_id} from cache: #{inspect(reason)}")
         nil
+      nil ->
+        Logger.info("User #{user_id} is not in a voice channel in guild #{guild_id}.")
+        nil
     end
   end
 
   def join_voice_chat(%Interaction{guild_id: guild_id} = interaction) do
-    Nostrum.Api.Self.update_voice_state(guild_id, get_voice_channel_of_interaction(interaction))
+    case get_voice_channel_of_interaction(interaction) do
+      nil ->
+        ElNino.Response.response_with_embed(interaction, ElNino.Embeds.error("Error", "You must be in a voice channel to use this command."))
+      channel_id ->
+        Nostrum.Api.Self.update_voice_state(guild_id, channel_id)
+    end
   end
 end

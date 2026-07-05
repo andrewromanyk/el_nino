@@ -14,26 +14,23 @@ defmodule ElNino.Lavalink.Client do
         load_tracks_first(query)
 
       false ->
-        Enum.find_value(@prefixes, fn prefix ->
-          load_tracks_first(query, prefix)
-        end)
-        |> case do
-          nil ->
-            Logger.info("Lavalink: No tracks found for query #{query} with any prefix.")
-            {:error, "No tracks found for the given query."}
-
-          track ->
+        case Enum.find_value(@prefixes, fn prefix -> load_tracks_first(query, prefix) end) do
+          {:ok, track} ->
             Logger.info("Lavalink: Found track #{track["info"]["title"]} for query #{query}.")
-            track
+            {:ok, track}
+          {:error, message} ->
+            Logger.info("Lavalink: No tracks found for query #{query} with any prefix.")
+            {:error, message}
         end
     end
   end
 
+  @spec load_tracks_first(any(), any()) :: {:error, <<_::288>>} | {:ok, any()}
   def load_tracks_first(query, prefix \\ "") do
     case load_tracks(query, prefix) |> Map.get("data") do
-      %{} = track -> track
-      [track | _] -> track
-      _ -> nil
+      %{} = track -> {:ok, track}
+      [track | _] -> {:ok, track}
+      _ -> {:error, "No tracks found for the given query."}
     end
   end
 

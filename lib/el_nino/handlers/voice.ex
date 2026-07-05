@@ -28,7 +28,8 @@ defmodule ElNino.Handlers.Voice do
            user_id: user_id,
            channel_id: channel_id
          }, _ws_state}
-      ) do
+      )
+  do
     if user_id == Nostrum.Cache.Me.get().id do
       merge_and_check(guild_id, %{session_id: session_id, channel_id: channel_id})
     end
@@ -37,7 +38,8 @@ defmodule ElNino.Handlers.Voice do
   def handle_event(
         {:VOICE_SERVER_UPDATE,
          %VoiceServerUpdate{guild_id: guild_id, token: token, endpoint: endpoint}, _ws_state}
-      ) do
+      )
+  do
     merge_and_check(guild_id, %{token: token, endpoint: endpoint})
   end
 
@@ -61,8 +63,10 @@ defmodule ElNino.Handlers.Voice do
          endpoint: e,
          channel_id: cid
        })
-       when not is_nil(sid) and not is_nil(t) and not is_nil(e) and not is_nil(cid) do
+       when not is_nil(sid) and not is_nil(t) and not is_nil(e) and not is_nil(cid)
+  do
     Logger.info("Voice credentials acquired for Guild #{guild_id}. Dispatching to Lavalink.")
+
     lavalink_sid = :persistent_term.get(:lavalink_session_id)
 
     ElNino.Lavalink.Client.update_player(lavalink_sid, guild_id,

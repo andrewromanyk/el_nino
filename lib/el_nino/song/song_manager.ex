@@ -108,10 +108,13 @@ defmodule ElNino.SongManager do
           paused: true
         )
 
-        {:reply, {:ok, "Paused."}, {:paused, current_song}}
+        {:reply, {:ok, "Playback has been paused."}, {:paused, current_song}}
+
+      :paused ->
+        {:reply, {:error, "Playback is already paused."}, state}
 
       _ ->
-        {:noreply, state}
+        {:reply, {:error, "Cannot pause."}, state}
     end
   end
 
