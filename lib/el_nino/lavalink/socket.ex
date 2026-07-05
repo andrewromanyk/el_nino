@@ -8,12 +8,14 @@ defmodule ElNino.Lavalink.Socket do
 
   def start_link(opts) do
     bot_id = Keyword.fetch!(opts, :bot_id)
-    url = "ws://localhost:2333/v4/websocket"
+    client_name = Keyword.get(opts, :client_name)
+    authorization = Keyword.get(opts, :authorization)
+    url = Keyword.get(opts, :url)
 
     headers = [
-      {"Authorization", "youshallnotpass"},
+      {"Authorization", authorization},
       {"User-Id", to_string(bot_id)},
-      {"Client-Name", "ElNino/1.0"}
+      {"Client-Name", client_name}
     ]
 
     WebSockex.start_link(url, __MODULE__, %{session_id: nil},
@@ -38,16 +40,19 @@ defmodule ElNino.Lavalink.Socket do
 
   @impl true
   def handle_frame({:text, msg}, state) do
-    payload = Jason.decode!(msg)
-
-    case payload do
+    case Jason.decode!(msg) do
       %{"op" => "ready", "sessionId" => session_id} ->
         Logger.info("Lavalink Session Acquired: #{session_id}")
         :persistent_term.put(:lavalink_session_id, session_id)
         {:ok, %{state | session_id: session_id}}
 
-      %{"op" => "event", "type" => "TrackEndEvent", "guildId" => guild_id} = _event ->
+      %{
+        "op" => "event",
+        "type" => "TrackEndEvent",
+        "guildId" => guild_id
+      } = _event ->
         Logger.info("Track ended in guild #{guild_id}")
+        ElNino.SongManager.play_next(guild_id)
         {:ok, state}
 
       %{

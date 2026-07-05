@@ -2,19 +2,17 @@ defmodule ElNino.Common do
   @moduledoc """
   Common functions for the ElNino bot.
   """
+  require Logger
 
   alias Nostrum.Struct.Interaction
 
   def get_voice_channel_of_interaction(%{guild_id: guild_id, user: %{id: user_id}}) do
-    case Nostrum.Cache.GuildCache.get(guild_id) do
-      {:ok, guild} ->
-        guild
-        |> Map.get(:voice_states, [])
-        |> Enum.find(%{}, fn v -> v.user_id == user_id end)
-        |> Map.get(:channel_id)
-
+    with  {:ok, guild} <- Nostrum.Cache.GuildCache.get(guild_id),
+          %{} = voice_state <- Enum.find(guild.voice_states, fn v -> v.user_id == user_id end) do
+      voice_state.channel_id
+    else
       {:error, reason} ->
-        IO.puts(reason)
+        Logger.error("Failed to get guild #{guild_id} from cache: #{inspect(reason)}")
         nil
     end
   end

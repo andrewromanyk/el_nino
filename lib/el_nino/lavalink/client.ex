@@ -4,24 +4,45 @@ defmodule ElNino.Lavalink.Client do
   @headers [{"Authorization", "youshallnotpass"}]
   @header_json [{"Content-Type", "application/json"}]
   @base_url "http://localhost:2333/v4"
+  @sources ["youtube.com", "music.youtube.com", "soundcloud.com"]
+  @prefixes ["ytsearch:", "ytmsearch:", "scsearch:"]
 
-  def load_tracks(query) do
-    Req.get!("#{@base_url}/loadtracks",
-      headers: @headers,
-      params: [identifier: "ytsearch:#{query}"]
-    )
-    |> Map.get(:body)
+  def load_tracks_best(query) do
+    case String.contains?(query, @sources) do
+      true ->
+        Logger.info("Lavalink: Loading tracks for query #{query} without prefix.")
+        load_tracks_first(query)
+
+      false ->
+        Enum.find_value(@prefixes, fn prefix ->
+          load_tracks_first(query, prefix)
+        end)
+        |> case do
+          nil ->
+            Logger.info("Lavalink: No tracks found for query #{query} with any prefix.")
+            {:error, "No tracks found for the given query."}
+
+          track ->
+            Logger.info("Lavalink: Found track #{track["info"]["title"]} for query #{query}.")
+            track
+        end
+    end
   end
 
-  def load_tracks_encoded(query) do
+  def load_tracks_first(query, prefix \\ "") do
+    case load_tracks(query, prefix) |> Map.get("data") do
+      %{} = track -> track
+      [track | _] -> track
+      _ -> nil
+    end
+  end
+
+  def load_tracks(query, prefix \\ "") do
     Req.get!("#{@base_url}/loadtracks",
       headers: @headers,
-      params: [identifier: "ytsearch:#{query}"]
+      params: [identifier: "#{prefix}#{query}"]
     )
     |> Map.get(:body)
-    |> Map.get("data")
-    |> Enum.at(0)
-    |> Map.get("encoded")
   end
 
   def update_player(session_id, guild_id,

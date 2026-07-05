@@ -27,11 +27,7 @@ defmodule ElNino.Commands.Play do
   def handle(%Interaction{data: %{options: [%{value: url}]}, guild_id: guild_id} = interaction) do
     Common.join_voice_chat(interaction)
 
-    track =
-      case ElNino.Lavalink.Client.load_tracks(url)["data"] do
-        nil -> nil
-        data -> data |> Enum.at(0)
-      end
+    track = ElNino.Lavalink.Client.load_tracks_best(url)
 
     with %{
            "encoded" => encoded,
@@ -49,12 +45,12 @@ defmodule ElNino.Commands.Play do
             data: %{
               embeds: [
                 %Embed{}
-                  |> Embed.put_author("Added track to queue", nil, nil)
-                  |> Embed.put_title(title)
-                  |> Embed.put_url(uri)
-                  |> Embed.put_field("Author", author)
-                  |> Embed.put_color(6036244)
-                  |> Embed.put_thumbnail(artwork_url)
+                |> Embed.put_author("Added track to queue", nil, nil)
+                |> Embed.put_title(title)
+                |> Embed.put_url(uri)
+                |> Embed.put_field("Author", author)
+                |> Embed.put_color(6_036_244)
+                |> Embed.put_thumbnail(artwork_url)
               ]
             }
           })
@@ -74,14 +70,14 @@ defmodule ElNino.Commands.Play do
           })
       end
     else
-      {:error, _} ->
+      {:error, message} ->
         Api.Interaction.create_response(interaction.id, interaction.token, %{
           type: 4,
           data: %{
             embeds: [
               %Embed{
                 title: "Error",
-                description: "Could not find any tracks for the given URL or search query.",
+                description: message,
                 color: 6_036_244
               }
             ]

@@ -1,6 +1,8 @@
 defmodule ElNino.Consumer do
   @behaviour Nostrum.Consumer
 
+  @compile {:nowarn_unused_function, [register_command: 1, register_command: 2]}
+
   require Logger
 
   alias Nostrum.Struct.Interaction
@@ -10,22 +12,33 @@ defmodule ElNino.Consumer do
     ElNino.Commands.Play,
     ElNino.Commands.Pause,
     ElNino.Commands.Resume,
+    ElNino.Commands.PlayNext,
     ElNino.Commands.Leave
   ]
 
-  defp register_command(command), do: register_command(966_052_378_023_444_560, command)
+  def register_command(command), do: register_command(966_052_378_023_444_560, command)
 
-  defp register_command(guild_id, command) do
+  def register_command(guild_id, command) do
     case Nostrum.Api.ApplicationCommand.create_guild_command(guild_id, command) do
       {:ok, _} -> IO.puts("Successfully registered " <> command.name <> " command!")
       _ -> IO.puts("Failed to register " <> command.name <> " command!")
     end
   end
 
+  defp register_all_commands_guild(guild_id) do
+    case Nostrum.Api.ApplicationCommand.bulk_overwrite_guild_commands(
+      guild_id,
+      Enum.map(@commands, & &1.definition())
+    ) do
+      {:ok, _} -> IO.puts("Successfully registered all commands for guild #{guild_id}!")
+      {:error, %{message: m}} -> IO.puts("Failed to register commands for guild #{guild_id}! Error: #{m}")
+    end
+  end
+
   # Registering all slash commands on bot ready event
   # TODO: Redo to register only when needed
   def handle_event({:READY, _, _}) do
-    Enum.each(@commands, fn command -> register_command(command.definition()) end)
+    register_all_commands_guild(966_052_378_023_444_560)
   end
 
   def handle_event(
@@ -50,6 +63,12 @@ defmodule ElNino.Consumer do
         {:INTERACTION_CREATE, %Interaction{data: %{name: "resume"}} = interaction, _ws_state}
       ) do
     ElNino.Commands.Resume.handle(interaction)
+  end
+
+  def handle_event(
+        {:INTERACTION_CREATE, %Interaction{data: %{name: "play_next"}} = interaction, _ws_state}
+      ) do
+    ElNino.Commands.PlayNext.handle(interaction)
   end
 
   def handle_event(

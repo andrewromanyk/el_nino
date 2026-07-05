@@ -22,6 +22,10 @@ defmodule ElNino.SongManager do
     GenServer.call(__MODULE__, {:resume, guild_id})
   end
 
+  def play_next(guild_id) do
+    GenServer.call(__MODULE__, {:play_next, guild_id})
+  end
+
   def leave(guild_id) do
     GenServer.call(__MODULE__, {:leave, guild_id})
   end
@@ -154,15 +158,33 @@ defmodule ElNino.SongManager do
   end
 
   @impl true
-  def handle_call({:play_next}, _from, _) do
-    case ElNino.SongQueue.pop() do
-      nil ->
-        Logger.info("SongManager: No more songs in the queue. Waiting for new songs.")
-        {:reply, {:ok, "No more songs in the queue."}, {:waiting, nil}}
+  def handle_call({:play_next, guild_id}, _from, {status, _} = _state) do
+    case status do
+      :playing ->
+        Logger.info("SongManager: Received play_next command. Playing next song.")
+        case ElNino.SongQueue.pop() do
+          nil ->
+            Logger.info("SongManager: No more songs in the queue. Waiting for new songs.")
+            ElNino.Lavalink.Client.update_player(
+              :persistent_term.get(:lavalink_session_id),
+              guild_id,
+              encoded_track: nil
+            )
+            {:reply, {:ok, "No more songs in the queue."}, {:waiting, nil}}
 
-      next_song ->
-        Logger.info("SongManager: Playing next song from queue: #{next_song}.")
-        {:reply, {:ok, "Playing next song: #{next_song}."}, {:playing, next_song}}
+          next_song ->
+            Logger.info("SongManager: Playing next song from queue: #{next_song}.")
+            ElNino.Lavalink.Client.update_player(
+              :persistent_term.get(:lavalink_session_id),
+              guild_id,
+              encoded_track: next_song
+            )
+            {:reply, {:ok, "Playing next song."}, {:playing, next_song}}
+        end
+
+      _ ->
+        Logger.info("SongManager: Received play_next command while #{status}. Skipping action.")
+        {:reply, {:ok, "Cannot play next song."}, {:waiting, nil}}
     end
   end
 end
