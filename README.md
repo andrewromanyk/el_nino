@@ -1,21 +1,16 @@
 # ElNino
 
-**TODO: Add description**
+Discord bot for playing music in Voice Chat in Elixir.
 
-## Installation
+Currently bot supports working on a single server.
 
-If [available in Hex](https://hex.pm/docs/publish), the package can be installed
-by adding `el_nino` to your list of dependencies in `mix.exs`:
+## [LavaLink](https://github.com/lavalink-devs/Lavalink)
 
-```elixir
-def deps do
-  [
-    {:el_nino, "~> 0.1.0"}
-  ]
-end
-```
+The bot delegate music playback to a separate LavaLink instance, created via [docker](/lavalink/).
 
-Documentation can be generated with [ExDoc](https://github.com/elixir-lang/ex_doc)
-and published on [HexDocs](https://hexdocs.pm). Once published, the docs can
-be found at <https://hexdocs.pm/el_nino>.
+## Libraries
 
+- [Nostrum](https://github.com/Kraigie/nostrum)
+- [WebSockex](https://github.com/dominicletz/websockex)
+- [Req](https://github.com/wojtekmach/req)
+- [Qex](https://github.com/princemaple/elixir-queue)
