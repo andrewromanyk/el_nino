@@ -41,10 +41,9 @@ defmodule ElNino.Commands.Play do
           }} <- ElNino.Lavalink.Client.load_tracks_best(query),
           {:ok, _} <- ElNino.SongManager.play(encoded, guild_id)
     do
-      case ElNino.Song.Supervisor.pair_exists?(guild_id) do
-        false ->
-          Logger.info("SongManager: No manager/queue pair found for guild #{guild_id}. Creating new pair.")
-          ElNino.Song.Supervisor.create_manager_queue_pair(guild_id)
+      if not ElNino.Song.Supervisor.pair_exists?(guild_id) do
+        Logger.info("SongManager: No manager/queue pair found for guild #{guild_id}. Creating new pair.")
+        ElNino.Song.Supervisor.create_manager_queue_pair(guild_id)
       end
 
       ElNino.Response.response_with_embed(

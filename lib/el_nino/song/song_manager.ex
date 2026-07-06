@@ -8,7 +8,6 @@ defmodule ElNino.SongManager do
   Starts the SongManager process.
   """
   def start_link([guild_id] = opts) do
-    # This triggers the init/1 callback below
     GenServer.start_link(__MODULE__, opts, name: Common.via_guild_manager_registry(guild_id))
   end
 
@@ -150,7 +149,6 @@ defmodule ElNino.SongManager do
     )
 
     :ets.delete(:voice_states, guild_id)
-    ElNino.SongQueue.clear(guild_id)
     {:reply, {:ok, "Disconnected from voice channel."}, {:not_connected, nil}}
   end
 

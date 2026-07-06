@@ -30,7 +30,7 @@ defmodule ElNino.Consumer do
     end
   end
 
-  defp register_all_commands_global() do
+  def register_all_commands_global() do
     case Nostrum.Api.ApplicationCommand.bulk_overwrite_global_commands(
            Enum.map(@commands, & &1.definition())
          ) do
