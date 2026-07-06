@@ -17,10 +17,11 @@ defmodule ElNino.Application do
     }
 
     children = [
+      {Registry, keys: :unique, name: GuildSongManagerRegistry},
+      {Registry, keys: :unique, name: GuildSongQueueRegistry},
       {Nostrum.Bot, bot_options},
-      {ElNino.SongQueue, []},
+      {ElNino.Song.Supervisor, []},
       {ElNino.Lavalink.Supervisor, []},
-      {ElNino.SongManager, []}
     ]
 
     :ets.new(:voice_states, [:set, :public, :named_table])

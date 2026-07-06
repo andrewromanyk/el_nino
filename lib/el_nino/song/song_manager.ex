@@ -1,17 +1,19 @@
 defmodule ElNino.SongManager do
-  use GenServer
+  use GenServer, restart: :transient
   require Logger
+
+  alias ElNino.Common
 
   @doc """
   Starts the SongManager process.
   """
-  def start_link(opts) do
+  def start_link([guild_id] = opts) do
     # This triggers the init/1 callback below
-    GenServer.start_link(__MODULE__, opts, name: __MODULE__)
+    GenServer.start_link(__MODULE__, opts, name: Common.via_guild_manager_registry(guild_id))
   end
 
   @impl true
-  def init(_args) do
+  def init(_opts) do
     # First val - States: not_connected, connecting, waiting (for song), playing, paused
     ## not_connected: not connected to a voice channel; idle
     ## connecting:    bot has initiated a connection to a voice channel; eagerly waiting to start doing something
@@ -19,39 +21,40 @@ defmodule ElNino.SongManager do
     ## playing:       bot is connected to a voice channel and a song is currently playing
     ## paused:        bot is connected to a voice channel and a song is currently paused; new added song won't trigger playback until resumed
     # Second val - current song (encoded track) or nil if no song is currently playing
+    # Third val - guild_id
     {:ok, {:not_connected, nil}}
   end
 
   def play(song, guild_id) do
-    GenServer.call(__MODULE__, {:play, song, guild_id})
+    GenServer.call(Common.via_guild_manager_registry(guild_id), {:play, song, guild_id})
   end
 
   def pause(guild_id) do
-    GenServer.call(__MODULE__, {:pause, guild_id})
+    GenServer.call(Common.via_guild_manager_registry(guild_id), {:pause, guild_id})
   end
 
   def resume(guild_id) do
-    GenServer.call(__MODULE__, {:resume, guild_id})
+    GenServer.call(Common.via_guild_manager_registry(guild_id), {:resume, guild_id})
   end
 
   def play_next(guild_id) do
-    GenServer.call(__MODULE__, {:play_next, guild_id})
+    GenServer.call(Common.via_guild_manager_registry(guild_id), {:play_next, guild_id})
   end
 
-  def volume(guild_id, volume) do
-    GenServer.call(__MODULE__, {:volume, guild_id, volume})
+  def volume(volume, guild_id) do
+    GenServer.call(Common.via_guild_manager_registry(guild_id), {:volume, volume, guild_id})
   end
 
   def leave(guild_id) do
-    GenServer.call(__MODULE__, {:leave, guild_id})
+    GenServer.call(Common.via_guild_manager_registry(guild_id), {:leave, guild_id})
   end
 
   def connected(guild_id) do
-    GenServer.cast(__MODULE__, {:connected, guild_id})
+    GenServer.cast(Common.via_guild_manager_registry(guild_id), {:connected, guild_id})
   end
 
   def disconnected(guild_id) do
-    GenServer.call(__MODULE__, {:disconnected, guild_id})
+    GenServer.call(Common.via_guild_manager_registry(guild_id), {:disconnected, guild_id})
   end
 
   @impl true
@@ -77,7 +80,7 @@ defmodule ElNino.SongManager do
 
       _ ->
         Logger.info("SongManager: Received play command while #{status}. Adding song to queue.")
-        ElNino.SongQueue.push(song)
+        ElNino.SongQueue.push(song, guild_id)
         {:reply, {:ok, "Song was added to the queue."}, state}
     end
   end
@@ -130,7 +133,7 @@ defmodule ElNino.SongManager do
     )
 
     :ets.delete(:voice_states, guild_id)
-    ElNino.SongQueue.clear()
+    ElNino.SongQueue.clear(guild_id)
     Nostrum.Voice.leave_channel(guild_id)
     {:reply, {:ok, "Left voice channel."}, {:not_connected, nil}}
   end
@@ -147,7 +150,7 @@ defmodule ElNino.SongManager do
     )
 
     :ets.delete(:voice_states, guild_id)
-    ElNino.SongQueue.clear()
+    ElNino.SongQueue.clear(guild_id)
     {:reply, {:ok, "Disconnected from voice channel."}, {:not_connected, nil}}
   end
 
@@ -157,7 +160,7 @@ defmodule ElNino.SongManager do
       :playing ->
         Logger.info("SongManager: Received play_next command. Playing next song.")
 
-        case ElNino.SongQueue.pop() do
+        case ElNino.SongQueue.pop(guild_id) do
           nil ->
             Logger.info("SongManager: No more songs in the queue. Waiting for new songs.")
 
@@ -185,6 +188,10 @@ defmodule ElNino.SongManager do
         Logger.info("SongManager: Received play_next command while disconnected. Ignoring.")
         {:reply, {:error, "Bot not in a voice channel."}, {:not_connected, nil}}
 
+      :waiting ->
+        Logger.info("SongManager: Received play_next command while waiting. Ignoring.")
+        {:reply, {:error, "No songs in queue."}, {:waiting, nil}}
+
       _ ->
         Logger.info("SongManager: Received play_next command while #{status}. Skipping action.")
         {:reply, {:error, "Probably not in a voice channel."}, {:waiting, nil}}
@@ -192,7 +199,7 @@ defmodule ElNino.SongManager do
   end
 
   @impl true
-  def handle_call({:volume, guild_id, volume}, _from, state) do
+  def handle_call({:volume, volume, guild_id}, _from, state) do
     ElNino.Lavalink.Client.update_player(
       :persistent_term.get(:lavalink_session_id),
       guild_id,
@@ -223,5 +230,10 @@ defmodule ElNino.SongManager do
       _ ->
         {:noreply, state}
     end
+  end
+
+  @impl true
+  def handle_cast(:terminate, _state) do
+    {:stop, :normal, nil}
   end
 end

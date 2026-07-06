@@ -1,7 +1,7 @@
 defmodule ElNino.Consumer do
   @behaviour Nostrum.Consumer
 
-  @compile {:nowarn_unused_function, [register_command: 1, register_command: 2]}
+  @servers [966052378023444560, 1399293262249852989]
 
   require Logger
 
@@ -17,15 +17,6 @@ defmodule ElNino.Consumer do
     ElNino.Commands.Leave
   ]
 
-  def register_command(command), do: register_command(966_052_378_023_444_560, command)
-
-  def register_command(guild_id, command) do
-    case Nostrum.Api.ApplicationCommand.create_guild_command(guild_id, command) do
-      {:ok, _} -> IO.puts("Successfully registered " <> command.name <> " command!")
-      _ -> IO.puts("Failed to register " <> command.name <> " command!")
-    end
-  end
-
   defp register_all_commands_guild(guild_id) do
     case Nostrum.Api.ApplicationCommand.bulk_overwrite_guild_commands(
            guild_id,
@@ -39,10 +30,23 @@ defmodule ElNino.Consumer do
     end
   end
 
+  defp register_all_commands_global() do
+    case Nostrum.Api.ApplicationCommand.bulk_overwrite_global_commands(
+           Enum.map(@commands, & &1.definition())
+         ) do
+      {:ok, _} ->
+        IO.puts("Successfully registered all global commands!")
+
+      {:error, %Nostrum.Error.ApiError{response: response}} ->
+        IO.puts("Failed to register global commands! Error: #{response}")
+    end
+  end
+
   # Registering all slash commands on bot ready event
   # TODO: Redo to register only when needed
   def handle_event({:READY, _, _}) do
-    register_all_commands_guild(966_052_378_023_444_560)
+    # register_all_commands_global()
+    Enum.each(@servers, fn guild_id -> register_all_commands_guild(guild_id) end)
   end
 
   def handle_event(

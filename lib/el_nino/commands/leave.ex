@@ -15,7 +15,7 @@ defmodule ElNino.Commands.Leave do
   end
 
   def handle(%Interaction{guild_id: guild_id} = interaction) do
-    case ElNino.Common.get_voice_channel_of_bot(guild_id) do
+    case ElNino.Discord.Common.get_voice_channel_of_bot(guild_id) do
       nil ->
         ElNino.Response.response_with_embed(
           interaction,

@@ -3,9 +3,8 @@ defmodule ElNino.Commands.PlayNext do
   Command that plays the next song in the queue.
   """
 
-  alias ElNino.Common
+  alias ElNino.{Discord, Colors}
   alias Nostrum.Struct.Interaction
-  alias ElNino.Colors
 
   def name(), do: "play_next"
 
@@ -17,7 +16,7 @@ defmodule ElNino.Commands.PlayNext do
   end
 
   def handle(%Interaction{guild_id: guild_id} = interaction) do
-    case Common.get_voice_channel_of_bot(guild_id) do
+    case Discord.Common.get_voice_channel_of_bot(guild_id) do
       nil ->
         ElNino.Response.response_with_embed(
           interaction,
