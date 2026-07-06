@@ -18,32 +18,6 @@ defmodule ElNino.Consumer do
     ElNino.Commands.Leave
   ]
 
-  defp register_all_commands_guild(guild_id) do
-    case ApplicationCommand.bulk_overwrite_guild_commands(
-           guild_id,
-           @commands |> Enum.map(& &1.definition())
-         ) do
-      {:ok, _} ->
-        IO.puts("Successfully registered all commands for guild #{guild_id}!")
-
-      {:error, %Nostrum.Error.ApiError{response: response}} ->
-        IO.puts("Failed to register commands for guild #{guild_id}! Error: #{response}")
-    end
-  end
-
-  def register_all_commands_global() do
-    case ApplicationCommand.bulk_overwrite_global_commands(
-           @commands
-           |> Enum.map(& &1.definition())
-         ) do
-      {:ok, _} ->
-        IO.puts("Successfully registered all global commands!")
-
-      {:error, %Nostrum.Error.ApiError{response: response}} ->
-        IO.puts("Failed to register global commands! Error: #{response}")
-    end
-  end
-
   # Registering all slash commands on bot ready event
   # TODO: Redo to register only when needed
   def handle_event({:READY, _, _}) do
@@ -80,6 +54,32 @@ defmodule ElNino.Consumer do
 
       command ->
         command.handle(interaction)
+    end
+  end
+
+  defp register_all_commands_guild(guild_id) do
+    case ApplicationCommand.bulk_overwrite_guild_commands(
+           guild_id,
+           @commands |> Enum.map(& &1.definition())
+         ) do
+      {:ok, _} ->
+        IO.puts("Successfully registered all commands for guild #{guild_id}!")
+
+      {:error, %Nostrum.Error.ApiError{response: response}} ->
+        IO.puts("Failed to register commands for guild #{guild_id}! Error: #{response}")
+    end
+  end
+
+  def register_all_commands_global() do
+    case ApplicationCommand.bulk_overwrite_global_commands(
+           @commands
+           |> Enum.map(& &1.definition())
+         ) do
+      {:ok, _} ->
+        IO.puts("Successfully registered all global commands!")
+
+      {:error, %Nostrum.Error.ApiError{response: response}} ->
+        IO.puts("Failed to register global commands! Error: #{response}")
     end
   end
 end
