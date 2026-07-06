@@ -32,5 +32,4 @@ defmodule ElNino.SongQueue do
   def clear(guild_id) do
     Agent.update(Common.via_guild_queue_registry(guild_id), fn _queue -> Qex.new() end)
   end
-
 end

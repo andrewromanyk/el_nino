@@ -27,8 +27,8 @@ defmodule ElNino.Commands.Play do
   end
 
   def handle(%Interaction{data: %{options: [%{value: query}]}, guild_id: guild_id} = interaction) do
-    with  true <- Discord.Common.join_voice_chat(interaction),
-          {:ok,
+    with true <- Discord.Common.join_voice_chat(interaction),
+         {:ok,
           %{
             "encoded" => encoded,
             "info" => %{
@@ -39,10 +39,12 @@ defmodule ElNino.Commands.Play do
               "length" => length
             }
           }} <- ElNino.Lavalink.Client.load_tracks_best(query),
-          {:ok, _} <- ElNino.SongManager.play(encoded, guild_id)
-    do
+         {:ok, _} <- ElNino.SongManager.play(encoded, guild_id) do
       if not ElNino.Song.Supervisor.pair_exists?(guild_id) do
-        Logger.info("SongManager: No manager/queue pair found for guild #{guild_id}. Creating new pair.")
+        Logger.info(
+          "SongManager: No manager/queue pair found for guild #{guild_id}. Creating new pair."
+        )
+
         ElNino.Song.Supervisor.create_manager_queue_pair(guild_id)
       end
 
@@ -50,13 +52,16 @@ defmodule ElNino.Commands.Play do
         interaction,
         Embeds.song_added_to_queue(title, uri, author, artwork_url, length)
       )
-
     else
       false ->
         ElNino.Response.response_with_embed(
           interaction,
-          ElNino.Embeds.one_liner_author("You must be in a voice channel to use this command.", ElNino.Colors.warn_color())
+          ElNino.Embeds.one_liner_author(
+            "You must be in a voice channel to use this command.",
+            ElNino.Colors.warn_color()
+          )
         )
+
       {:error, message} ->
         ElNino.Response.response_with_embed(
           interaction,

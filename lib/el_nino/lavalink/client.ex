@@ -12,8 +12,12 @@ defmodule ElNino.Lavalink.Client do
         Logger.info("Lavalink: No tracks found for query #{query} with any prefix.")
         {:error, "No tracks found for the given query."}
 
-      playlist when is_list(playlist) -> # useless case for now, will help when we add functionality for playlists
-        Logger.info("Lavalink: Found playlist with #{length(playlist)} tracks for query #{query}.")
+      # useless case for now, will help when we add functionality for playlists
+      playlist when is_list(playlist) ->
+        Logger.info(
+          "Lavalink: Found playlist with #{length(playlist)} tracks for query #{query}."
+        )
+
         {:ok, playlist}
 
       track ->
@@ -25,9 +29,11 @@ defmodule ElNino.Lavalink.Client do
   def load_tracks_first(query, prefix \\ "") do
     case load_tracks(query, prefix) do
       %{"loadType" => "track", "data" => track} -> track
-      %{"loadType" => "search", "data" => [track | _]} -> track # search results return a list of tracks, we take the first one
-      %{"loadType" => "playlist", "data" => [track | _] = _playlist} -> track # unlike search, user implied to add the whole playlist (as specified in the url)
-                                                                              # TODO: handle playlists
+      # search results return a list of tracks, we take the first one
+      %{"loadType" => "search", "data" => [track | _]} -> track
+      # unlike search, user implied to add the whole playlist (as specified in the url)
+      %{"loadType" => "playlist", "data" => [track | _] = _playlist} -> track
+      # TODO: handle playlists
       _ -> nil
     end
   end
