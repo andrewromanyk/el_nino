@@ -18,6 +18,15 @@ defmodule ElNino.SongQueue do
   end
 
   @doc """
+  Pushes a list of URLs onto the end of the queue.
+  """
+  def push_list(urls, guild_id) when is_list(urls) do
+    Agent.update(Common.via_guild_queue_registry(guild_id), fn queue ->
+      Enum.reduce(urls, queue, fn url, acc -> Qex.push(acc, url) end)
+    end)
+  end
+
+  @doc """
   Pops a URL from the front of the queue. Returns `nil` if the queue is empty.
   """
   def pop(guild_id) do

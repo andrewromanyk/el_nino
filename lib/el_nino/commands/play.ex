@@ -27,8 +27,11 @@ defmodule ElNino.Commands.Play do
   end
 
   def handle(%Interaction{data: %{options: [%{value: query}]}, guild_id: guild_id} = interaction) do
-    with true <- Discord.Common.join_voice_chat(interaction),
-         {:ok,
+    with _            <- ElNino.Song.Supervisor.ensure_pair_exists(guild_id),
+         true         <- Discord.Common.join_voice_chat(interaction),
+         load_tracks  <- ElNino.Lavalink.Client.load_tracks_best(query) do
+      case load_tracks do
+        {:ok, :track,
           %{
             "encoded" => encoded,
             "info" => %{
@@ -38,20 +41,23 @@ defmodule ElNino.Commands.Play do
               "uri" => uri,
               "length" => length
             }
-          }} <- ElNino.Lavalink.Client.load_tracks_best(query),
-         {:ok, _} <- ElNino.SongManager.play(encoded, guild_id) do
-      if not ElNino.Song.Supervisor.pair_exists?(guild_id) do
-        Logger.info(
-          "SongManager: No manager/queue pair found for guild #{guild_id}. Creating new pair."
-        )
+          }
+        }  ->
+          ElNino.SongManager.play(encoded, guild_id)
+          ElNino.Response.response_with_embed(
+            interaction,
+            Embeds.song_added_to_queue(title, uri, author, artwork_url, length)
+          )
 
-        ElNino.Song.Supervisor.create_manager_queue_pair(guild_id)
+        {:ok, :playlist, %{"info" => %{"name" => name}, "tracks" => [ %{"info" => %{"artworkUrl" => artwork_url}} | _] = playlist}} ->
+
+          ElNino.SongManager.play_list(playlist |> Enum.map(&(&1["encoded"])), guild_id)
+
+          ElNino.Response.response_with_embed(
+            interaction,
+            Embeds.playlist_added_to_queue(name, artwork_url, query, playlist |> length() |> Integer.to_string())
+          )
       end
-
-      ElNino.Response.response_with_embed(
-        interaction,
-        Embeds.song_added_to_queue(title, uri, author, artwork_url, length)
-      )
     else
       false ->
         ElNino.Response.response_with_embed(

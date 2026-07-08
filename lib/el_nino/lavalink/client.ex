@@ -13,16 +13,16 @@ defmodule ElNino.Lavalink.Client do
         {:error, "No tracks found for the given query."}
 
       # useless case for now, will help when we add functionality for playlists
-      playlist when is_list(playlist) ->
+      %{"tracks" => _} = playlist ->
         Logger.info(
-          "Lavalink: Found playlist with #{length(playlist)} tracks for query #{query}."
+          "Lavalink: Found playlist with #{length(playlist["tracks"])} tracks for query #{query}."
         )
 
-        {:ok, playlist}
+        {:ok, :playlist, playlist}
 
       track ->
         Logger.info("Lavalink: Found track #{track["info"]["title"]} for query #{query}.")
-        {:ok, track}
+        {:ok, :track, track}
     end
   end
 
@@ -32,7 +32,7 @@ defmodule ElNino.Lavalink.Client do
       # search results return a list of tracks, we take the first one
       %{"loadType" => "search", "data" => [track | _]} -> track
       # unlike search, user implied to add the whole playlist (as specified in the url)
-      %{"loadType" => "playlist", "data" => [track | _] = _playlist} -> track
+      %{"loadType" => "playlist", "data" => %{"tracks" => [_track | _] = _playlist} = playlist_data} -> playlist_data
       # TODO: handle playlists
       _ -> nil
     end

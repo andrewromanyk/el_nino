@@ -38,6 +38,7 @@ defmodule ElNino.Common do
     {:via, Registry, {registry, key}}
   end
 
+  @spec via_guild_manager_registry(any()) :: {:via, Registry, {any(), any()}}
   def via_guild_manager_registry(guild_id) do
     via_registry(GuildSongManagerRegistry, guild_id)
   end
