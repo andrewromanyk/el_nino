@@ -27,39 +27,57 @@ defmodule ElNino.Commands.Play do
   end
 
   def handle(%Interaction{data: %{options: [%{value: query}]}, guild_id: guild_id} = interaction) do
-    with _            <- ElNino.Song.Supervisor.ensure_pair_exists(guild_id),
-         true         <- Discord.Common.join_voice_chat(interaction),
-         load_tracks  <- ElNino.Lavalink.Client.load_tracks_best(query) do
+    with(
+      # if not in a voice channel, stop everything
+      channel_id when not is_nil(channel_id) <-
+        Discord.Common.get_voice_channel_of_interaction(interaction),
+      # we must have a manager-queue pair active before anything happens
+      _ <- ElNino.Song.Supervisor.ensure_pair_exists(guild_id),
+      # sends update state, if we don't have manager-queue pair later actions will fail
+      :ok <- Discord.Common.join_voice_chat(interaction),
+      # relatively stateless, but if done first and something breaks - it is useless
+      {:ok, _, _} = load_tracks <- ElNino.Lavalink.Client.load_tracks_best(query)
+    ) do
       case load_tracks do
         {:ok, :track,
-          %{
-            "encoded" => encoded,
-            "info" => %{
-              "artworkUrl" => artwork_url,
-              "author" => author,
-              "title" => title,
-              "uri" => uri,
-              "length" => length
-            }
-          }
-        }  ->
+         %{
+           "encoded" => encoded,
+           "info" => %{
+             "artworkUrl" => artwork_url,
+             "author" => author,
+             "title" => title,
+             "uri" => uri,
+             "length" => length
+           }
+         }} ->
           ElNino.SongManager.play(encoded, guild_id)
+
           ElNino.Response.response_with_embed(
             interaction,
             Embeds.song_added_to_queue(title, uri, author, artwork_url, length)
           )
 
-        {:ok, :playlist, %{"info" => %{"name" => name}, "tracks" => [ %{"info" => %{"artworkUrl" => artwork_url}} | _] = playlist}} ->
-
-          ElNino.SongManager.play_list(playlist |> Enum.map(&(&1["encoded"])), guild_id)
+        {:ok, :playlist,
+         %{
+           "info" => %{"name" => name},
+           "tracks" => [%{"info" => %{"artworkUrl" => artwork_url}} | _] = playlist
+         }} ->
+          ElNino.SongManager.play_list(playlist |> Enum.map(& &1["encoded"]), guild_id)
 
           ElNino.Response.response_with_embed(
             interaction,
-            Embeds.playlist_added_to_queue(name, artwork_url, query, playlist |> length() |> Integer.to_string())
+            Embeds.playlist_added_to_queue(
+              name,
+              artwork_url,
+              query,
+              playlist |> length() |> Integer.to_string(),
+              playlist |> Enum.reduce(0, fn track, acc -> acc + track["info"]["length"] end)
+            )
           )
       end
     else
-      false ->
+      # get_voice_channel_of_interaction
+      nil ->
         ElNino.Response.response_with_embed(
           interaction,
           ElNino.Embeds.one_liner_author(
@@ -68,6 +86,7 @@ defmodule ElNino.Commands.Play do
           )
         )
 
+      # load_tracks_best
       {:error, message} ->
         ElNino.Response.response_with_embed(
           interaction,

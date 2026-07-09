@@ -20,12 +20,13 @@ defmodule ElNino.Embeds do
     |> Embed.put_thumbnail(artwork_url)
   end
 
-  def playlist_added_to_queue(name, artwork_url, uri, track_count) do
+  def playlist_added_to_queue(name, artwork_url, uri, track_count, playlist_length) do
     %Embed{}
     |> Embed.put_author("Added playlist to queue", nil, nil)
     |> Embed.put_title(name)
     |> Embed.put_url(uri)
     |> Embed.put_field("Tracks", track_count, true)
+    |> Embed.put_field("Length", ElNino.Common.ms_to_str(playlist_length), true)
     |> Embed.put_color(Colors.info_color())
     |> Embed.put_thumbnail(artwork_url)
   end

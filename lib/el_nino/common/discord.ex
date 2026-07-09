@@ -30,14 +30,6 @@ defmodule ElNino.Discord.Common do
 
   def join_voice_chat(%Interaction{guild_id: guild_id} = interaction) do
     Logger.info("Joining voice chat for guild #{guild_id}.")
-
-    case get_voice_channel_of_interaction(interaction) do
-      nil ->
-        false
-
-      channel_id ->
-        Nostrum.Api.Self.update_voice_state(guild_id, channel_id)
-        true
-    end
+    Nostrum.Api.Self.update_voice_state(guild_id, get_voice_channel_of_interaction(interaction))
   end
 end

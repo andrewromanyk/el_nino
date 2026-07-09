@@ -28,13 +28,23 @@ defmodule ElNino.Lavalink.Client do
 
   def load_tracks_first(query, prefix \\ "") do
     case load_tracks(query, prefix) do
-      %{"loadType" => "track", "data" => track} -> track
+      %{"loadType" => "track", "data" => track} ->
+        track
+
       # search results return a list of tracks, we take the first one
-      %{"loadType" => "search", "data" => [track | _]} -> track
+      %{"loadType" => "search", "data" => [track | _]} ->
+        track
+
       # unlike search, user implied to add the whole playlist (as specified in the url)
-      %{"loadType" => "playlist", "data" => %{"tracks" => [_track | _] = _playlist} = playlist_data} -> playlist_data
+      %{
+        "loadType" => "playlist",
+        "data" => %{"tracks" => [_track | _] = _playlist} = playlist_data
+      } ->
+        playlist_data
+
       # TODO: handle playlists
-      _ -> nil
+      _ ->
+        nil
     end
   end
 
