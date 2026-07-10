@@ -3,8 +3,11 @@ defmodule ElNino.Lavalink.Client do
 
   @headers [{"Authorization", "youshallnotpass"}]
   @header_json [{"Content-Type", "application/json"}]
-  @base_url "http://localhost:2333/v4"
   @prefixes ["", "ytmsearch:", "ytsearch:", "scsearch:"]
+
+  defp base_url do
+    "http://" <> System.get_env("LAVALINK_ENDPOINT", "localhost:2333") <> "/v4"
+  end
 
   def load_tracks_best(query) do
     case Enum.find_value(@prefixes, fn prefix -> load_tracks_first(query, prefix) end) do
@@ -49,7 +52,7 @@ defmodule ElNino.Lavalink.Client do
   end
 
   def load_tracks(query, prefix \\ "") do
-    Req.get!("#{@base_url}/loadtracks",
+    Req.get!("#{base_url()}/loadtracks",
       headers: @headers,
       params: [identifier: "#{prefix}#{query}"]
     )
@@ -64,7 +67,7 @@ defmodule ElNino.Lavalink.Client do
           channel_id: channel_id
         }
       ) do
-    Req.patch!("#{@base_url}/sessions/#{session_id}/players/#{guild_id}",
+    Req.patch!("#{base_url()}/sessions/#{session_id}/players/#{guild_id}",
       headers: @headers ++ @header_json,
       params: [noReplace: true],
       json: %{
@@ -79,7 +82,7 @@ defmodule ElNino.Lavalink.Client do
   end
 
   def update_player(session_id, guild_id, encoded_track: encoded_track) do
-    Req.patch!("#{@base_url}/sessions/#{session_id}/players/#{guild_id}",
+    Req.patch!("#{base_url()}/sessions/#{session_id}/players/#{guild_id}",
       headers: @headers ++ @header_json,
       params: [noReplace: false],
       json: %{
@@ -91,7 +94,7 @@ defmodule ElNino.Lavalink.Client do
   end
 
   def update_player(session_id, guild_id, paused: paused) do
-    Req.patch!("#{@base_url}/sessions/#{session_id}/players/#{guild_id}",
+    Req.patch!("#{base_url()}/sessions/#{session_id}/players/#{guild_id}",
       headers: @headers ++ @header_json,
       params: [noReplace: false],
       json: %{
@@ -102,7 +105,7 @@ defmodule ElNino.Lavalink.Client do
 
   def update_player(session_id, guild_id, volume: volume)
       when is_number(volume) and volume >= 0 and volume <= 1000 do
-    Req.patch!("#{@base_url}/sessions/#{session_id}/players/#{guild_id}",
+    Req.patch!("#{base_url()}/sessions/#{session_id}/players/#{guild_id}",
       headers: @headers ++ @header_json,
       params: [noReplace: false],
       json: %{
@@ -112,13 +115,13 @@ defmodule ElNino.Lavalink.Client do
   end
 
   def destroy_player(session_id, guild_id) do
-    Req.delete!("#{@base_url}/sessions/#{session_id}/players/#{guild_id}",
+    Req.delete!("#{base_url()}/sessions/#{session_id}/players/#{guild_id}",
       headers: @headers
     )
   end
 
   def get_players(session_id) do
-    Req.get!("#{@base_url}/sessions/#{session_id}/players",
+    Req.get!("#{base_url()}/sessions/#{session_id}/players",
       headers: @headers
     )
   end

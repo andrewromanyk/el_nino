@@ -1,0 +1,10 @@
+/_build
+/deps
+/assets/node_modules
+/.elixir_ls
+*.ez
+*.beam
+.git
+.gitignore
+Dockerfile
+docker-compose.yml

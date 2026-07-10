@@ -10,10 +10,7 @@ services:
       - LAVALINK_SERVER_PASSWORD=youshallnotpass
       - YT_OAUTH_TOKEN=${YT_OAUTH_TOKEN}
     volumes:
-      # mount application.yml from the same directory, if you want to use environment variables remove this line below
       - ./application.yaml:/opt/Lavalink/application.yaml
-      # persist plugins between restarts, make sure to create the folder & set the correct permissions and user/group id mentioned above
-      # - ./plugins/:/opt/Lavalink/plugins/
     networks:
       - lavalink
     expose:
@@ -24,6 +21,17 @@ services:
       # - "2333:2333"
       # if you want to restrict access to localhost only
       - "127.0.0.1:2333:2333"
+  bot:
+    image: andrewromanyk/el_nino:0.0.1
+    container_name: el_nino
+    restart: unless-stopped
+    environment:
+      - DISCORD_TOKEN=${DISCORD_TOKEN}
+      - LAVALINK_ENDPOINT=lavalink:2333
+    depends_on:
+      - lavalink
+    networks:
+      - lavalink
 networks:
   # create a lavalink network you can add other containers to, to give them access to Lavalink
   lavalink:

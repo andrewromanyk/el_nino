@@ -53,15 +53,7 @@ defmodule ElNino.SongManager do
   end
 
   def connected(guild_id) do
-    Logger.info(
-      "1!!!!! SongManager: Bot has connected to the voice channel for Guild #{guild_id}."
-    )
-
     GenServer.cast(Common.via_guild_manager_registry(guild_id), {:connected, guild_id})
-
-    Logger.info(
-      "3!!!!! SongManager: Bot has connected to the voice channel for Guild #{guild_id}."
-    )
   end
 
   def disconnected(guild_id) do
@@ -208,6 +200,7 @@ defmodule ElNino.SongManager do
 
   @impl true
   def handle_call({:play_next, guild_id}, _from, {status, _} = _state) do
+    Logger.info("SongManager: Received play_next command for guild #{guild_id}. Current status: #{status}")
     case status do
       :playing ->
         Logger.info("SongManager: Received play_next command. Playing next song.")
@@ -263,10 +256,6 @@ defmodule ElNino.SongManager do
 
   @impl true
   def handle_cast({:connected, guild_id}, {status, song} = state) do
-    Logger.info(
-      "2!!!!! SongManager: Bot has connected to the voice channel for Guild #{guild_id}. Status: #{status}."
-    )
-
     case status do
       :connecting ->
         Logger.info("SongManager: Connected to voice channel. Starting playback of #{song}.")

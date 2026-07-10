@@ -49,9 +49,11 @@ defmodule ElNino.Lavalink.Socket do
       %{
         "op" => "event",
         "type" => "TrackEndEvent",
-        "guildId" => guild_id,
+        "guildId" => guild_id_str,
         "reason" => reason
       } = _event ->
+        Logger.info("TrackEndEvent received: #{inspect(guild_id_str)}")
+        guild_id = String.to_integer(guild_id_str)
         Logger.info("Track ended in guild #{guild_id}")
 
         case reason do
