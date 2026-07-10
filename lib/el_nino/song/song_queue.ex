@@ -33,7 +33,7 @@ defmodule ElNino.SongQueue do
     Agent.get_and_update(Common.via_guild_queue_registry(guild_id), fn queue ->
       case Qex.pop(queue) do
         {{:value, value}, new_queue} -> {value, new_queue}
-        {:empty, _} -> {nil, []}
+        {:empty, q} -> {nil, q}
       end
     end)
   end
