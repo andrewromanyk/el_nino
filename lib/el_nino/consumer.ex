@@ -30,6 +30,9 @@ defmodule ElNino.Consumer do
         _ws_state
       }) do
     if not is_nil(guild_id) and not is_nil(channel_id) do
+      Logger.info(
+        "Interaction received in guild #{guild_id} and channel #{channel_id}."
+      )
       :ets.insert(:last_interaction, {guild_id, channel_id})
     end
 

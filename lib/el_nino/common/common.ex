@@ -2,7 +2,6 @@ defmodule ElNino.Common do
   @moduledoc """
   Common functions for the ElNino bot.
   """
-  require Logger
 
   def ms_to_str(ms) when is_integer(ms) and ms >= 0 do
     total_seconds = div(ms, 1000)

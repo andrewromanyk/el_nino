@@ -34,7 +34,7 @@ defmodule ElNino.Lavalink.Socket do
   @impl true
   def handle_disconnect(connection_status_map, state) do
     Logger.warning("Disconnected from Lavalink: #{inspect(connection_status_map)}")
-    Process.sleep(1500)
+    Process.sleep(10000)
     {:reconnect, state}
   end
 
@@ -52,7 +52,6 @@ defmodule ElNino.Lavalink.Socket do
         "guildId" => guild_id_str,
         "reason" => reason
       } = _event ->
-        Logger.info("TrackEndEvent received: #{inspect(guild_id_str)}")
         guild_id = String.to_integer(guild_id_str)
         Logger.info("Track ended in guild #{guild_id}")
 
@@ -80,12 +79,20 @@ defmodule ElNino.Lavalink.Socket do
       %{
         "op" => "event",
         "type" => "TrackExceptionEvent",
-        "guildId" => guild_id,
+        "guildId" => guild_id_str,
         "track" => track,
-        "exception" => exception
+        "exception" => _exception
       } = _event ->
         Logger.info(
-          "Track exception in guild #{guild_id}. Track: #{track}. Exception: #{inspect(exception)}"
+          "Track exception in guild #{guild_id_str}."
+        )
+        track |> IO.inspect()
+
+        guild_id = String.to_integer(guild_id_str)
+
+        ElNino.Response.message_with_embed(
+          ElNino.Discord.Common.get_last_channel_of_interaction(guild_id),
+          ElNino.Embeds.one_liner_author("Could not play track '#{track["info"]["title"]}'. Probably age-restricted. Playing next song.")
         )
 
         {:ok, state}

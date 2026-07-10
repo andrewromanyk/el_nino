@@ -32,4 +32,11 @@ defmodule ElNino.Discord.Common do
     Logger.info("Joining voice chat for guild #{guild_id}.")
     Nostrum.Api.Self.update_voice_state(guild_id, get_voice_channel_of_interaction(interaction))
   end
+
+  def get_last_channel_of_interaction(guild_id) do
+    case :ets.lookup(:last_interaction, guild_id) do
+      [{^guild_id, channel_id}] -> channel_id
+      [] -> nil
+    end
+  end
 end

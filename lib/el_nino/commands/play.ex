@@ -3,8 +3,6 @@ defmodule ElNino.Commands.Play do
   Command that plays music in the current voice channel.
   """
 
-  require Logger
-
   alias ElNino.{Embeds, Discord}
   alias Nostrum.Struct.Interaction
 
