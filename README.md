@@ -50,7 +50,7 @@ Before running the bot, ensure you have `docker` and `docker compose` installed.
 
 ## Architecture
 
-Currently the architecture consists of the main Nostrum Bot process communicating with the Discord API. Relevant commands create a pair of Song Manager (SM) and Song Queue (SQ) processes connected associated with a Guild (Server). A LavaLink instance is always active in a separate docker container. Each SM oversees its own LavaLink [Player](https://lavalink.dev/api/rest.html#player-api). LavaLink intercepts incoming VC connections and independently manages them. SM modifies and ultimately deletes a Player when needed.
+Currently the architecture consists of the main Nostrum Bot process communicating with the Discord API. Relevant commands create a pair of Song Manager (SM) and Song Queue (SQ) processes associated with a Guild (Server). A LavaLink instance is always active in a separate docker container. Each SM oversees its own LavaLink [Player](https://lavalink.dev/api/rest.html#player-api). LavaLink intercepts incoming VC connections and independently manages them. SM modifies and ultimately deletes a Player when needed.
 
 ![Architecture Diagram](readme/architecture_diagram.png)
 
