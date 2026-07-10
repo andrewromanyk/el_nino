@@ -21,18 +21,17 @@ The bot delegates music playback to a separate [LavaLink](https://github.com/lav
 
 Before running the bot, ensure you have `docker` and `docker compose` installed. [Docker Desktop](https://docs.docker.com/desktop/) is recommended, however you may also install standalone [Docker Engine](https://docs.docker.com/engine/install/) for headless systems.
 
-- Create your own [Discord Application](https://discord.com/developers/home) (bot), retrieve its Application Token.
+1. Create your own [Discord Application](https://discord.com/developers/home) (bot), retrieve its Application Token. \
   [Official docs](https://docs.discord.com/developers/quick-start/getting-started#step-1-creating-an-app)
-- Copy `.yaml` configuration files from [Lavalink Folder](lavalink/).
-- Setup Environment Variables:
-
-  - Necessary:
-    - `DISCORD_TOKEN` - Application Token of your bot.
-  - Optional:
-    - `YT_OAUTH_TOKEN` - YouTube refresh token, helps improve connection to YouTube. Can be retrieved through LavaLink's instance's logs.
-      [Official docs on the token](https://github.com/lavalink-devs/youtube-source#using-oauth-tokens)
-      [3rd party instruction](https://docs.dcs.aitsys.dev/articles/modules/audio/lavalink_v4/setup)
-- Run the command in the same folder as the configuration files:
+2. Copy `.yaml` configuration files from [Lavalink Folder](lavalink/).
+3. Setup Environment Variables:
+    - Necessary:
+        - `DISCORD_TOKEN` - Application Token of your bot.
+    - Optional:
+        - `YT_OAUTH_TOKEN` - YouTube refresh token, helps improve connection to YouTube. Can be retrieved through LavaLink's instance's logs. \
+        [Official docs on the token](https://github.com/lavalink-devs/youtube-source#using-oauth-tokens) \
+        [3rd party instruction](https://docs.dcs.aitsys.dev/articles/modules/audio/lavalink_v4/setup)
+4. Run the command in the same folder as the configuration files:
 
 ```sh
 docker compose up -d
