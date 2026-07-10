@@ -26,16 +26,25 @@ Before running the bot, ensure you have `docker` and `docker compose` installed.
 2. Copy `.yaml` configuration files from [Lavalink Folder](lavalink/).
 3. Setup Environment Variables:
     - Necessary:
-        - `DISCORD_TOKEN` - Application Token of your bot.
+
+    ```sh
+    export DISCORD_TOKEN=<discord_token> # Application Token of your bot.
+    ```
+
     - Optional:
-        - `YT_OAUTH_TOKEN` - YouTube refresh token, helps improve connection to YouTube. Can be retrieved through LavaLink's instance's logs. \
-        [Official docs on the token](https://github.com/lavalink-devs/youtube-source#using-oauth-tokens) \
-        [3rd party instruction](https://docs.dcs.aitsys.dev/articles/modules/audio/lavalink_v4/setup)
+
+    ```sh
+    export YT_OAUTH_TOKEN=<youtube_token> # YouTube refresh token. Can be retrieved through LavaLink's instance's logs.
+    ```
+
+    [Official docs on the token](https://github.com/lavalink-devs/youtube-source#using-oauth-tokens) \
+    [3rd party instruction](https://docs.dcs.aitsys.dev/articles/modules/audio/lavalink_v4/setup)
+
 4. Run the command in the same folder as the configuration files:
 
-```sh
-docker compose up -d
-```
+    ```sh
+    docker compose up -d
+    ```
 
 > Note: The compose file relies on a Docker Hub image. It may be updated inconsistently, therefore it is recommended to create your own using existing [Dockerfile](Dockerfile). After that update `bot: image: <your_image_name>` in [compose.yaml](lavalink/compose.yaml?plain=1#L25)
 
