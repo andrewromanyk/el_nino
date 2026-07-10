@@ -2,8 +2,7 @@
 
 ![Elixir](https://img.shields.io/badge/elixir-1.20-purple?style=flat&logo=elixir&logoColor=purple&labelColor=white)
 [![Nostrum](https://img.shields.io/badge/nostrum-v0.11.0--dev%20-%23063E2A?style=flat&logoColor=%23063E2A&labelColor=white)](https://github.com/Kraigie/nostrum)  
-[![Docker](https://img.shields.io/docker/v/andrewromanyk/el_nino?style=flat&logo=docker&label=image&labelColor=white&color=blue
-)](https://hub.docker.com/repository/docker/andrewromanyk/el_nino/general)
+[![Docker](https://img.shields.io/docker/v/andrewromanyk/el_nino?style=flat&logo=docker&label=image&labelColor=white&color=blue)](https://hub.docker.com/repository/docker/andrewromanyk/el_nino/general)
 
 Discord music player bot. Powered by Elixir with Nostrum.
 
