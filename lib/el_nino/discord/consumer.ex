@@ -28,6 +28,22 @@ defmodule ElNino.Consumer do
 
   def handle_event({
         :INTERACTION_CREATE,
+        %Interaction{type: 3},
+        _ws_state
+      } = interaction) do
+    ElNino.Handlers.Controller.handle_event(interaction)
+  end
+
+  def handle_event({
+        :INTERACTION_CREATE,
+        %Interaction{type: 5},
+        _ws_state
+      } = interaction) do
+    ElNino.Handlers.Controller.handle_event(interaction)
+  end
+
+  def handle_event({
+        :INTERACTION_CREATE,
         %Interaction{guild_id: guild_id, channel_id: channel_id} = interaction,
         _ws_state
       }) do

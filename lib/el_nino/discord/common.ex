@@ -39,4 +39,11 @@ defmodule ElNino.Discord.Common do
       [] -> nil
     end
   end
+
+  def channel_exists?(guild_id, channel_id) do
+    case Nostrum.Api.Channel.get(channel_id) do
+      {:ok, %Nostrum.Struct.Channel{guild_id: ^guild_id}} -> true
+      _ -> false
+    end
+  end
 end

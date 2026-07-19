@@ -3,7 +3,7 @@ defmodule ElNino.Lavalink.Client do
 
   @headers [{"Authorization", "youshallnotpass"}]
   @header_json [{"Content-Type", "application/json"}]
-  @prefixes ["", "scsearch:", "ytmsearch:", "ytsearch:"]
+  @prefixes ["", "ytmsearch:", "ytsearch:", "scsearch:"]
 
   defp base_url do
     "http://" <> System.get_env("LAVALINK_ENDPOINT", "localhost:2333") <> "/v4"
@@ -55,6 +55,22 @@ defmodule ElNino.Lavalink.Client do
     Req.get!("#{base_url()}/loadtracks",
       headers: @headers,
       params: [identifier: "#{prefix}#{query}"]
+    )
+    |> Map.get(:body)
+  end
+
+  def decode_track(encoded_track) do
+    Req.get!("#{base_url()}/decodetrack",
+      headers: @headers,
+      params: [encodedTrack: encoded_track]
+    )
+    |> Map.get(:body)
+  end
+
+  def decode_tracks(encoded_tracks) when is_list(encoded_tracks) do
+    Req.post!("#{base_url()}/decodetracks",
+      headers: @headers,
+      json: encoded_tracks
     )
     |> Map.get(:body)
   end

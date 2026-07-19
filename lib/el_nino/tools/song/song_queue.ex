@@ -38,6 +38,10 @@ defmodule ElNino.SongQueue do
     end)
   end
 
+  def get_all(guild_id) do
+    Agent.get(Common.via_guild_queue_registry(guild_id), fn queue -> Enum.to_list(queue) end)
+  end
+
   def clear(guild_id) do
     Agent.update(Common.via_guild_queue_registry(guild_id), fn _queue -> Qex.new() end)
   end

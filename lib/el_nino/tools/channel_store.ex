@@ -38,7 +38,8 @@ defmodule ElNino.ChannelStore do
   def handle_call({:get, guild_id}, _from, state) do
     case :dets.lookup(state.table, guild_id) do
       [{^guild_id, channel_id}] -> {:reply, {:ok, channel_id}, state}
-      [] -> {:reply, :error, state}
+      [] -> {:reply, :not_found, state}
+      {:error, reason} -> {:reply, {:error, reason}, state}
     end
   end
 end

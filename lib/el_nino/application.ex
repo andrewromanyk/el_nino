@@ -21,9 +21,8 @@ defmodule ElNino.Application do
       {Registry, keys: :unique, name: GuildSongQueueRegistry},
       {Nostrum.Bot, bot_options},
       {ElNino.Song.Supervisor, []},
-      # {ElNino.Lavalink.Supervisor, []},
+      {ElNino.Lavalink.Supervisor, []},
       {ElNino.ChannelStore, []},
-      {ElNino.Repo, []}
     ]
 
     :ets.new(:voice_states, [:set, :public, :named_table])

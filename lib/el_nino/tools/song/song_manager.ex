@@ -13,14 +13,6 @@ defmodule ElNino.SongManager do
 
   @impl true
   def init(_opts) do
-    # First val - States: not_connected, connecting, waiting (for song), playing, paused
-    ## not_connected: not connected to a voice channel; idle
-    ## connecting:    bot has initiated a connection to a voice channel; eagerly waiting to start doing something
-    ## waiting:       bot is connected to a voice channel, eagerly waiting for a song to be added to the queue
-    ## playing:       bot is connected to a voice channel and a song is currently playing
-    ## paused:        bot is connected to a voice channel and a song is currently paused; new added song won't trigger playback until resumed
-    # Second val - current song (encoded track) or nil if no song is currently playing
-    # Third val - guild_id
     {:ok, {:not_connected, nil}}
   end
 
@@ -64,11 +56,8 @@ defmodule ElNino.SongManager do
   def handle_call({:play, song, guild_id}, _from, {status, _} = state) do
     case status do
       :not_connected ->
-        Logger.info(
-          "SongManager: Received play command while not connected. Waiting for connection."
-        )
-
-        {:reply, {:ok, "Connecting to voice channel."}, {:connecting, song}}
+        Logger.info("SongManager: Received play command while not connected. Waiting for connection.")
+        reply_and_update({:ok, "Connecting to voice channel."}, {:connecting, song}, guild_id)
 
       :waiting ->
         Logger.info("SongManager: Received play command while waiting. Updating song to #{song}.")
@@ -79,12 +68,12 @@ defmodule ElNino.SongManager do
           encoded_track: song
         )
 
-        {:reply, {:ok, "Song is now playing."}, {:playing, song}}
+        reply_and_update({:ok, "Song is now playing."}, {:playing, song}, guild_id)
 
       _ ->
         Logger.info("SongManager: Received play command while #{status}. Adding song to queue.")
         ElNino.SongQueue.push(song, guild_id)
-        {:reply, {:ok, "Song was added to the queue."}, state}
+        reply_and_update({:ok, "Song was added to the queue."}, state, guild_id)
     end
   end
 
@@ -96,19 +85,13 @@ defmodule ElNino.SongManager do
       ) do
     case status do
       :not_connected ->
-        Logger.info(
-          "SongManager: Received play_list command while not connected. Waiting for connection."
-        )
+        Logger.info("SongManager: Received play_list command while not connected. Waiting for connection.")
 
-        # Push all songs to the queue
         ElNino.SongQueue.push_list(songs_tail, guild_id)
-
-        {:reply, {:ok, "Connecting to voice channel."}, {:connecting, track}}
+        reply_and_update({:ok, "Connecting to voice channel."}, {:connecting, track}, guild_id)
 
       :waiting ->
-        Logger.info(
-          "SongManager: Received play command while waiting. Updating song to #{track}."
-        )
+        Logger.info("SongManager: Received play command while waiting. Updating song to #{track}.")
 
         ElNino.Lavalink.Client.update_player(
           :persistent_term.get(:lavalink_session_id),
@@ -117,16 +100,13 @@ defmodule ElNino.SongManager do
         )
 
         ElNino.SongQueue.push_list(songs_tail, guild_id)
-
-        {:reply, {:ok, "Song is now playing."}, {:playing, track}}
+        reply_and_update({:ok, "Song is now playing."}, {:playing, track}, guild_id)
 
       _ ->
-        Logger.info(
-          "SongManager: Received play_list command while #{status}. Adding songs to queue."
-        )
+        Logger.info("SongManager: Received play_list command while #{status}. Adding songs to queue.")
 
         ElNino.SongQueue.push_list(playlist, guild_id)
-        {:reply, {:ok, "Songs were added to the queue."}, state}
+        reply_and_update({:ok, "Songs were added to the queue."}, state, guild_id)
     end
   end
 
@@ -140,13 +120,13 @@ defmodule ElNino.SongManager do
           paused: true
         )
 
-        {:reply, {:ok, "Playback has been paused."}, {:paused, current_song}}
+        reply_and_update({:ok, "Playback has been paused."}, {:paused, current_song}, guild_id)
 
       :paused ->
-        {:reply, {:error, "Playback is already paused."}, state}
+        reply_and_update({:error, "Playback is already paused."}, state, guild_id)
 
       _ ->
-        {:reply, {:error, "Cannot pause."}, state}
+        reply_and_update({:error, "Cannot pause."}, state, guild_id)
     end
   end
 
@@ -160,13 +140,13 @@ defmodule ElNino.SongManager do
           paused: false
         )
 
-        {:reply, {:ok, "Playback was resumed."}, {:playing, current_song}}
+        reply_and_update({:ok, "Playback was resumed."}, {:playing, current_song}, guild_id)
 
       :playing ->
-        {:reply, {:error, "Track is already playing."}, state}
+        reply_and_update({:error, "Track is already playing."}, state, guild_id)
 
       _ ->
-        {:reply, {:error, "Unknown status."}, state}
+        reply_and_update({:error, "Unknown status."}, state, guild_id)
     end
   end
 
@@ -180,14 +160,12 @@ defmodule ElNino.SongManager do
     :ets.delete(:voice_states, guild_id)
     ElNino.SongQueue.clear(guild_id)
     Nostrum.Voice.leave_channel(guild_id)
-    {:reply, {:ok, "Left voice channel."}, {:not_connected, nil}}
+    reply_and_update({:ok, "Left voice channel."}, {:not_connected, nil}, guild_id)
   end
 
   @impl true
   def handle_call({:disconnected, guild_id}, _from, _state) do
-    Logger.info(
-      "SongManager: Bot has been disconnected from the voice channel for Guild #{guild_id}."
-    )
+    Logger.info("SongManager: Bot has been disconnected from the voice channel for Guild #{guild_id}.")
 
     ElNino.Lavalink.Client.destroy_player(
       :persistent_term.get(:lavalink_session_id),
@@ -195,14 +173,12 @@ defmodule ElNino.SongManager do
     )
 
     :ets.delete(:voice_states, guild_id)
-    {:reply, {:ok, "Disconnected from voice channel."}, {:not_connected, nil}}
+    reply_and_update({:ok, "Disconnected from voice channel."}, {:not_connected, nil}, guild_id)
   end
 
   @impl true
   def handle_call({:play_next, guild_id}, _from, {status, _} = _state) do
-    Logger.info(
-      "SongManager: Received play_next command for guild #{guild_id}. Current status: #{status}"
-    )
+    Logger.info("SongManager: Received play_next command for guild #{guild_id}. Current status: #{status}")
 
     case status do
       :playing ->
@@ -218,7 +194,7 @@ defmodule ElNino.SongManager do
               encoded_track: nil
             )
 
-            {:reply, {:ok, "No more songs in the queue."}, {:waiting, nil}}
+            reply_and_update({:ok, "No more songs in the queue."}, {:waiting, nil}, guild_id)
 
           next_song ->
             Logger.info("SongManager: Playing next song from queue: #{next_song}.")
@@ -229,20 +205,20 @@ defmodule ElNino.SongManager do
               encoded_track: next_song
             )
 
-            {:reply, {:ok, "Playing next song."}, {:playing, next_song}}
+            reply_and_update({:ok, "Playing next song."}, {:playing, next_song}, guild_id)
         end
 
       :disconnected ->
         Logger.info("SongManager: Received play_next command while disconnected. Ignoring.")
-        {:reply, {:error, "Bot not in a voice channel."}, {:not_connected, nil}}
+        reply_and_update({:error, "Bot not in a voice channel."}, {:not_connected, nil}, guild_id)
 
       :waiting ->
         Logger.info("SongManager: Received play_next command while waiting. Ignoring.")
-        {:reply, {:error, "No songs in queue."}, {:waiting, nil}}
+        reply_and_update({:error, "No songs in queue."}, {:waiting, nil}, guild_id)
 
       _ ->
         Logger.info("SongManager: Received play_next command while #{status}. Skipping action.")
-        {:reply, {:error, "Probably not in a voice channel."}, {:waiting, nil}}
+        reply_and_update({:error, "Probably not in a voice channel."}, {:waiting, nil}, guild_id)
     end
   end
 
@@ -254,7 +230,7 @@ defmodule ElNino.SongManager do
       volume: volume
     )
 
-    {:reply, {:ok, "Volume set to #{volume}."}, state}
+    reply_and_update({:ok, "Volume set to #{volume}."}, state, guild_id)
   end
 
   @impl true
@@ -269,19 +245,37 @@ defmodule ElNino.SongManager do
           encoded_track: song
         )
 
-        {:noreply, {:playing, song}}
+        noreply_and_update({:playing, song}, guild_id)
 
       :not_connected ->
         Logger.warning("SongManager: Received connected event while not connecting.")
-        {:noreply, {:waiting, song}}
+        noreply_and_update({:waiting, song}, guild_id)
 
       _ ->
-        {:noreply, state}
+        noreply_and_update(state, guild_id)
     end
   end
 
   @impl true
   def handle_cast(:terminate, _state) do
     {:stop, :normal, nil}
+  end
+
+  # --- Private UI Notification Helpers ---
+
+  defp reply_and_update(response, new_state, guild_id) do
+    Task.start(fn ->
+      ElNino.SongController.handle_state(guild_id, new_state)
+    end)
+
+    {:reply, response, new_state}
+  end
+
+  defp noreply_and_update(new_state, guild_id) do
+    Task.start(fn ->
+      ElNino.SongController.handle_state(guild_id, new_state)
+    end)
+
+    {:noreply, new_state}
   end
 end
