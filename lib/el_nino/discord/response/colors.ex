@@ -3,9 +3,9 @@ defmodule ElNino.Colors do
   Provides color constants for Discord embeds used in the ElNino bot.
   """
 
-  @info_color 5971222
-  @warn_color 3091757
-  @error_color 3547942
+  @info_color 5_971_222
+  @warn_color 3_091_757
+  @error_color 3_547_942
 
   @doc """
   Returns the color for info embeds.

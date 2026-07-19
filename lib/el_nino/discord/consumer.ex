@@ -10,12 +10,14 @@ defmodule ElNino.Consumer do
 
   @commands [
     ElNino.Commands.Echo,
+
     ElNino.Commands.Play,
     ElNino.Commands.Pause,
     ElNino.Commands.Resume,
     ElNino.Commands.PlayNext,
     ElNino.Commands.Volume,
-    ElNino.Commands.Leave
+    ElNino.Commands.Leave,
+    ElNino.Commands.CreateManagerChannel
   ]
 
   # Registering all slash commands on bot ready event
@@ -30,9 +32,7 @@ defmodule ElNino.Consumer do
         _ws_state
       }) do
     if not is_nil(guild_id) and not is_nil(channel_id) do
-      Logger.info(
-        "Interaction received in guild #{guild_id} and channel #{channel_id}."
-      )
+      Logger.info("Interaction received in guild #{guild_id} and channel #{channel_id}.")
       :ets.insert(:last_interaction, {guild_id, channel_id})
     end
 

@@ -58,4 +58,17 @@ defmodule ElNino.Embeds do
     |> Embed.put_author(text, nil, nil)
     |> Embed.put_color(color)
   end
+
+  def one_liner_description(text, color \\ Colors.info_color()) do
+    %Embed{}
+    |> Embed.put_description(text)
+    |> Embed.put_color(color)
+  end
+
+  def two_liner_author_description(author, description, color \\ Colors.info_color()) do
+    %Embed{}
+    |> Embed.put_author(author, nil, nil)
+    |> Embed.put_description(description)
+    |> Embed.put_color(color)
+  end
 end

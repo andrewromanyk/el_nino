@@ -25,7 +25,9 @@ defmodule ElNino.MixProject do
       {:nostrum, github: "Kraigie/nostrum"},
       {:qex, "~> 0.5"},
       {:websockex, "~> 0.5.1"},
-      {:req, "~> 0.6.2"}
+      {:req, "~> 0.6.2"},
+      {:ecto_sqlite3, "~> 0.24.1"},
+      {:ecto_sql, "~> 3.14.0"},
     ]
   end
 end

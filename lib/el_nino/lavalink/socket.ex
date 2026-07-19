@@ -83,16 +83,16 @@ defmodule ElNino.Lavalink.Socket do
         "track" => track,
         "exception" => _exception
       } = _event ->
-        Logger.info(
-          "Track exception in guild #{guild_id_str}."
-        )
+        Logger.info("Track exception in guild #{guild_id_str}.")
         track |> IO.inspect()
 
         guild_id = String.to_integer(guild_id_str)
 
         ElNino.Response.message_with_embed(
           ElNino.Discord.Common.get_last_channel_of_interaction(guild_id),
-          ElNino.Embeds.one_liner_author("Could not play track '#{track["info"]["title"]}'. Probably age-restricted. Playing next song.")
+          ElNino.Embeds.one_liner_author(
+            "Could not play track '#{track["info"]["title"]}'. Probably age-restricted. Playing next song."
+          )
         )
 
         {:ok, state}

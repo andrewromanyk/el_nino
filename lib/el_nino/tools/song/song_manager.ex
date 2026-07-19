@@ -200,7 +200,10 @@ defmodule ElNino.SongManager do
 
   @impl true
   def handle_call({:play_next, guild_id}, _from, {status, _} = _state) do
-    Logger.info("SongManager: Received play_next command for guild #{guild_id}. Current status: #{status}")
+    Logger.info(
+      "SongManager: Received play_next command for guild #{guild_id}. Current status: #{status}"
+    )
+
     case status do
       :playing ->
         Logger.info("SongManager: Received play_next command. Playing next song.")
