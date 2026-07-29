@@ -6,15 +6,12 @@ defmodule ElNino.SongController do
   require Logger
 
   def handle_state(guild_id, state) do
-    Logger.info("Handling state for guild #{guild_id}. State: #{inspect(state)}")
     case ElNino.ChannelStore.get(guild_id) do
       {:ok, channel_id} ->
-        Logger.info("Found manager channel for guild #{guild_id}: #{channel_id}. Updating message with current state.")
         #get the message from the channel and update it with the current state
-        Logger.info("Retrieving messages from channel #{channel_id} for guild #{guild_id}.")
-        {:ok, [%Nostrum.Struct.Message{id: id}]} = Nostrum.Api.Channel.messages(channel_id, 1) # must be a single message. More messages - error, there must always be only a single message
+        {:ok, %Nostrum.Struct.Message{id: id}} = ensure_one_message(channel_id)
         Logger.info("Retrieved message #{id} from channel #{channel_id} for guild #{guild_id}. Updating message with current state.")
-        Nostrum.Api.Message.edit(channel_id, id, embeds:
+        {:ok, _} = Nostrum.Api.Message.edit(channel_id, id, embeds:
           case state do
             {:not_connected, _} ->
               [ElNino.Embeds.two_liner_author_description("Bot is not connected to a voice channel.", "Use the `/play` command to start playing music.")]
@@ -44,6 +41,27 @@ defmodule ElNino.SongController do
 
       :not_found ->  # guild might have no manager channel yet, so we do nothing
         Logger.info("No manager channel found for guild #{guild_id}")
+    end
+  end
+
+  defp ensure_one_message(channel_id) do
+    # continuously query 100 messages and delete them until there is no messages and create a new one
+    bot_id = Nostrum.Cache.Me.get().id
+    case Nostrum.Api.Channel.messages(channel_id, 100) do
+      {:ok, []} ->
+        Nostrum.Api.Message.create(channel_id, "Placeholder message for the manager channel. This channel is used to manage the bot's music playback.")
+
+      # when one message and is by the bot - return it
+      {:ok, [%Nostrum.Struct.Message{author: %{id: id}} = message]} when id == bot_id ->
+        {:ok, message}
+
+      {:ok, messages} ->
+        message_ids = Enum.map(messages, fn %Nostrum.Struct.Message{id: id} -> id end)
+        Nostrum.Api.Channel.bulk_delete_messages(channel_id, message_ids)
+        ensure_one_message(channel_id)
+
+      {:error, reason} ->
+        Logger.error("Error retrieving messages for channel #{channel_id}. Reason: #{inspect(reason)}")
     end
   end
 

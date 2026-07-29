@@ -76,6 +76,8 @@ def handle(%Interaction{data: data, guild_id: guild_id} = interaction) do
       ]
     })
 
+    ElNino.ChannelStore.put(guild_id, channel.id)
+
     ElNino.Response.response_with_embed(
       interaction,
       Embeds.two_liner_author_description("Manager channel created:", "<##{channel.id}>")
@@ -83,6 +85,9 @@ def handle(%Interaction{data: data, guild_id: guild_id} = interaction) do
 
     Nostrum.Api.Message.create(channel.id, "Placeholder message for the manager channel. This channel is used to manage the bot's music playback.")
 
-    ElNino.ChannelStore.put(guild_id, channel.id)
+    Nostrum.Api.Thread.create(channel.id, %{
+      name: "Commands Thread",
+      type: 11
+    })
   end
 end

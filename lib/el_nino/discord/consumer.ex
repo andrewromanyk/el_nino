@@ -26,27 +26,19 @@ defmodule ElNino.Consumer do
     Enum.each(@servers, fn guild_id -> register_all_commands_guild(guild_id) end)
   end
 
-  def handle_event({
-        :INTERACTION_CREATE,
-        %Interaction{type: 3},
-        _ws_state
-      } = interaction) do
+  def handle_event({:MESSAGE_CREATE, _message, _ws_state} = event) do
+    ElNino.Handlers.Controller.handle_event(event)
+  end
+
+  def handle_event({:INTERACTION_CREATE, %Interaction{type: 3}, _ws_state } = interaction) do
     ElNino.Handlers.Controller.handle_event(interaction)
   end
 
-  def handle_event({
-        :INTERACTION_CREATE,
-        %Interaction{type: 5},
-        _ws_state
-      } = interaction) do
+  def handle_event({:INTERACTION_CREATE, %Interaction{type: 5}, _ws_state} = interaction) do
     ElNino.Handlers.Controller.handle_event(interaction)
   end
 
-  def handle_event({
-        :INTERACTION_CREATE,
-        %Interaction{guild_id: guild_id, channel_id: channel_id} = interaction,
-        _ws_state
-      }) do
+  def handle_event({:INTERACTION_CREATE, %Interaction{guild_id: guild_id, channel_id: channel_id} = interaction, _ws_state}) do
     if not is_nil(guild_id) and not is_nil(channel_id) do
       Logger.info("Interaction received in guild #{guild_id} and channel #{channel_id}.")
       :ets.insert(:last_interaction, {guild_id, channel_id})
