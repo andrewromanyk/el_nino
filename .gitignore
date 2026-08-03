@@ -23,3 +23,5 @@ erl_crash.dump
 el_nino-*.tar
 
 /.vscode/
+
+channel.dets
