@@ -1,4 +1,4 @@
-FROM elixir:1.20.1 as build
+FROM elixir:1.20.1 AS build
 
 ENV MIX_ENV=prod \
     LANG=C.UTF-8

@@ -1,7 +1,7 @@
 defmodule ElNino.Consumer do
   @behaviour Nostrum.Consumer
 
-  @servers [966_052_378_023_444_560, 1_399_293_262_249_852_989]
+  @servers [966_052_378_023_444_560, 1_399_293_262_249_852_989, 696639042217050112]
 
   require Logger
 
@@ -24,6 +24,7 @@ defmodule ElNino.Consumer do
   # TODO: Redo to register only when needed
   def handle_event({:READY, _, _}) do
     Enum.each(@servers, fn guild_id -> register_all_commands_guild(guild_id) end)
+    register_all_commands_global()
   end
 
   def handle_event({:MESSAGE_CREATE, _message, _ws_state} = event) do
