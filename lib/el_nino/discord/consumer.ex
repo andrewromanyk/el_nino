@@ -23,8 +23,9 @@ defmodule ElNino.Consumer do
   # Registering all slash commands on bot ready event
   # TODO: Redo to register only when needed
   def handle_event({:READY, _, _}) do
+    ApplicationCommand.bulk_overwrite_global_commands([])
     Enum.each(@servers, fn guild_id -> register_all_commands_guild(guild_id) end)
-    register_all_commands_global()
+    # register_all_commands_global()
   end
 
   def handle_event({:MESSAGE_CREATE, _message, _ws_state} = event) do
