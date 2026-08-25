@@ -5,13 +5,13 @@ ENV MIX_ENV=prod \
 
 WORKDIR /build
 
-RUN mix local.hex --force && \
-    mix local.rebar --force
+RUN mix local.hex --force && mix local.rebar --force
 
-COPY mix.exs mix.lock config/ ./
+COPY mix.exs mix.lock ./
+RUN mix deps.get --only prod
 
-RUN mix deps.get --only prod && \
-    mix deps.compile
+COPY config/ config/
+RUN mix deps.compile
 
 COPY . .
 

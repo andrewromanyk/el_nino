@@ -1,5 +1,4 @@
 defmodule ElNino.Song.Supervisor do
-  # dynamic supervisor
   use DynamicSupervisor
 
   require Logger
@@ -14,11 +13,8 @@ defmodule ElNino.Song.Supervisor do
   end
 
   def create_manager_queue_pair(guild_id) do
-    # Start a new SongManager process for the guild
-    {:ok, manager_pid} =
-      DynamicSupervisor.start_child(__MODULE__, {ElNino.SongManager, [guild_id]})
+    {:ok, manager_pid} = DynamicSupervisor.start_child(__MODULE__, {ElNino.SongManager, [guild_id]})
 
-    # Start a new SongQueue process for the guild
     {:ok, queue_pid} = DynamicSupervisor.start_child(__MODULE__, {ElNino.SongQueue, [guild_id]})
 
     {manager_pid, queue_pid}

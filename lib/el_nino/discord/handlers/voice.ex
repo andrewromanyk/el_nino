@@ -18,11 +18,6 @@ defmodule ElNino.Handlers.Voice do
       Logger.info("VoiceState: Bot has been kicked from the voice channel for Guild #{guild_id}.")
       ElNino.SongManager.disconnected(guild_id)
       ElNino.Song.Supervisor.terminate_manager_queue_pair(guild_id)
-
-      ElNino.Response.message_with_embed(
-        :ets.lookup(:last_interaction, guild_id) |> List.first() |> elem(1),
-        ElNino.Embeds.one_liner_author("Bot has been disconnected from the voice channel.")
-      )
     end
   end
 

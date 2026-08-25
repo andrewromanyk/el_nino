@@ -24,6 +24,8 @@ defmodule ElNino.Response do
     response(interaction, 4, %{embeds: [embed], flags: if(ephemeral, do: 64, else: 0)})
   end
 
+  @spec message_with_embed(non_neg_integer() | Nostrum.Struct.Message.t(), any()) ::
+          {:error, Nostrum.Error.ApiError.t()} | {:ok, Nostrum.Struct.Message.t()}
   @doc """
   Creates a message without an interaction.
   """

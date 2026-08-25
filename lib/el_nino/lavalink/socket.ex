@@ -55,12 +55,14 @@ defmodule ElNino.Lavalink.Socket do
         guild_id = String.to_integer(guild_id_str)
         Logger.info("Track ended in guild #{guild_id}")
 
+        # Whether to play next specified in lavalink.dev/api/websocket#track-end-reason as 'May Start Next'
         case reason do
           "finished" ->
-            Logger.info(
-              "Track finished playing in guild #{guild_id}. Attempting to play next song."
-            )
+            Logger.info("Track finished playing in guild #{guild_id}. Attempting to play next song.")
+            ElNino.SongManager.play_next(guild_id)
 
+          "loadFailed" ->
+            Logger.info("Track failed to load in guild #{guild_id}. Attempting to play next song.")
             ElNino.SongManager.play_next(guild_id)
 
           "replaced" ->
@@ -69,9 +71,8 @@ defmodule ElNino.Lavalink.Socket do
           "stopped" ->
             Logger.info("Track was stopped in guild #{guild_id}.")
 
-          _ ->
-            Logger.info("Track ended for unknown reason in guild #{guild_id}: #{reason}")
-            ElNino.SongManager.play_next(guild_id)
+          "cleanup" ->
+            Logger.info("Track was cleaned up in guild #{guild_id}.")
         end
 
         {:ok, state}
@@ -84,16 +85,19 @@ defmodule ElNino.Lavalink.Socket do
         "exception" => _exception
       } = _event ->
         Logger.info("Track exception in guild #{guild_id_str}.")
-        track |> IO.inspect()
 
-        guild_id = String.to_integer(guild_id_str)
+        channel = ElNino.Discord.Common.get_last_channel_of_interaction(String.to_integer(guild_id_str))
 
-        # ElNino.Response.message_with_embed(
-        #   ElNino.Discord.Common.get_last_channel_of_interaction(guild_id),
-        #   ElNino.Embeds.one_liner_author(
-        #     "Could not play track '#{track["info"]["title"]}'. Probably age-restricted. Playing next song."
-        #   )
-        # )
+        if channel do
+          ElNino.Response.message_with_embed(
+            channel,
+            ElNino.Embeds.one_liner_author(
+              "Could not play track '#{track["info"]["title"]}'. Probably age-restricted. Playing next song."
+            )
+          )
+        else
+          Logger.warning("No channel found for guild #{guild_id_str} to send track exception message.")
+        end
 
         {:ok, state}
 
