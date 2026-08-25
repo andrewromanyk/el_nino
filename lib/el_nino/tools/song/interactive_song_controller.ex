@@ -223,8 +223,8 @@ defmodule ElNino.InteractiveSongController do
       {:waiting, _} -> [true, true, true, false]
       {:playing, _} -> [false, true, false, false]
       {:paused, _} -> [true, false, false, false]
-      {:leaving, _} -> [true, true, true, true]
-      {:leaving_timeout, _} -> [true, true, true, true]
+      {:leaving, _} -> [true, true, true, false]
+      {:leaving_timeout, _} -> [true, true, true, false]
     end
   end
 
