@@ -13,7 +13,8 @@ defmodule ElNino.Song.Supervisor do
   end
 
   def create_manager_queue_pair(guild_id) do
-    {:ok, manager_pid} = DynamicSupervisor.start_child(__MODULE__, {ElNino.SongManager, [guild_id]})
+    {:ok, manager_pid} =
+      DynamicSupervisor.start_child(__MODULE__, {ElNino.SongManager, [guild_id]})
 
     {:ok, queue_pid} = DynamicSupervisor.start_child(__MODULE__, {ElNino.SongQueue, [guild_id]})
 

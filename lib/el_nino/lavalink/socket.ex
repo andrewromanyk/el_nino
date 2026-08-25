@@ -58,11 +58,17 @@ defmodule ElNino.Lavalink.Socket do
         # Whether to play next specified in lavalink.dev/api/websocket#track-end-reason as 'May Start Next'
         case reason do
           "finished" ->
-            Logger.info("Track finished playing in guild #{guild_id}. Attempting to play next song.")
+            Logger.info(
+              "Track finished playing in guild #{guild_id}. Attempting to play next song."
+            )
+
             ElNino.SongManager.play_next(guild_id)
 
           "loadFailed" ->
-            Logger.info("Track failed to load in guild #{guild_id}. Attempting to play next song.")
+            Logger.info(
+              "Track failed to load in guild #{guild_id}. Attempting to play next song."
+            )
+
             ElNino.SongManager.play_next(guild_id)
 
           "replaced" ->
@@ -86,7 +92,8 @@ defmodule ElNino.Lavalink.Socket do
       } = _event ->
         Logger.info("Track exception in guild #{guild_id_str}.")
 
-        channel = ElNino.Discord.Common.get_last_channel_of_interaction(String.to_integer(guild_id_str))
+        channel =
+          ElNino.Discord.Common.get_last_channel_of_interaction(String.to_integer(guild_id_str))
 
         if channel do
           ElNino.Response.message_with_embed(
@@ -96,7 +103,9 @@ defmodule ElNino.Lavalink.Socket do
             )
           )
         else
-          Logger.warning("No channel found for guild #{guild_id_str} to send track exception message.")
+          Logger.warning(
+            "No channel found for guild #{guild_id_str} to send track exception message."
+          )
         end
 
         {:ok, state}

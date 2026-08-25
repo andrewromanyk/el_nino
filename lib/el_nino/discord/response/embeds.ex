@@ -93,55 +93,55 @@ defmodule ElNino.Embeds do
         |> Embed.put_color(color)
 
       _ ->
-      old_len = length(queue)
-      queue = Enum.take(queue, 6)
-      new_len = length(queue)
-      overflow = old_len - new_len
-      [first | _] = tracks = ElNino.Lavalink.Client.decode_tracks(queue)
+        old_len = length(queue)
+        queue = Enum.take(queue, 6)
+        new_len = length(queue)
+        overflow = old_len - new_len
+        [first | _] = tracks = ElNino.Lavalink.Client.decode_tracks(queue)
 
-      base_embed =
-        %Embed{}
-        |> Embed.put_title("Current Queue")
-        |> Embed.put_color(color)
-        |> Embed.put_thumbnail(first["info"]["artworkUrl"])
+        base_embed =
+          %Embed{}
+          |> Embed.put_title("Current Queue")
+          |> Embed.put_color(color)
+          |> Embed.put_thumbnail(first["info"]["artworkUrl"])
 
+        embed =
+          Enum.reduce(tracks, base_embed, fn track, current_embed ->
+            info = track["info"]
 
-      embed = Enum.reduce(tracks, base_embed, fn track, current_embed ->
-        info = track["info"]
+            current_embed
+            |> Embed.put_field(
+              info["title"],
+              "[#{info["author"]}](#{info["uri"]})",
+              true
+            )
+            |> Embed.put_field(
+              "",
+              "",
+              true
+            )
+            |> Embed.put_field(
+              "Duration",
+              ElNino.Common.ms_to_str(info["length"]),
+              true
+            )
+            |> Embed.put_field(
+              "",
+              "",
+              false
+            )
+          end)
 
-        current_embed
-        |> Embed.put_field(
-          info["title"],
-          "[#{info["author"]}](#{info["uri"]})",
-          true
-        )
-        |> Embed.put_field(
-          "",
-          "",
-          true
-        )
-        |> Embed.put_field(
-          "Duration",
-          ElNino.Common.ms_to_str(info["length"]),
-          true
-        )
-        |> Embed.put_field(
-          "",
-          "",
-          false
-        )
-      end)
-
-      if overflow > 0 do
-        embed
-        |> Embed.put_field(
-          "And #{overflow} more tracks...",
-          "",
-          false
-        )
-      else
-        embed
-      end
+        if overflow > 0 do
+          embed
+          |> Embed.put_field(
+            "And #{overflow} more tracks...",
+            "",
+            false
+          )
+        else
+          embed
+        end
     end
   end
 end

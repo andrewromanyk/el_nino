@@ -20,9 +20,16 @@ defmodule ElNino.InteractiveSongController do
   end
 
   defp ensure_started(guild_id) do
-    case DynamicSupervisor.start_child(GuildInteractiveSongControllerSupervisor, {__MODULE__, guild_id}) do
-      {:ok, _pid} -> :ok
-      {:error, {:already_started, _pid}} -> :ok
+    case DynamicSupervisor.start_child(
+           GuildInteractiveSongControllerSupervisor,
+           {__MODULE__, guild_id}
+         ) do
+      {:ok, _pid} ->
+        :ok
+
+      {:error, {:already_started, _pid}} ->
+        :ok
+
       error ->
         Logger.error("Failed to start song controller for guild #{guild_id}: #{inspect(error)}")
         error
@@ -40,15 +47,26 @@ defmodule ElNino.InteractiveSongController do
       {:ok, channel_id} ->
         {:ok, %Nostrum.Struct.Message{id: id}} = ensure_one_message(channel_id)
 
-        Logger.info("Retrieved message #{id} from channel #{channel_id} for guild #{guild_id}. Updating message with current state.")
+        Logger.info(
+          "Retrieved message #{id} from channel #{channel_id} for guild #{guild_id}. Updating message with current state."
+        )
 
         embeds = build_embeds(guild_id, playback_state)
-        components = build_components(disable_components(playback_state), style_components(playback_state))
 
-        {:ok, _} = Nostrum.Api.Message.edit(channel_id, id, content: "", embeds: embeds, components: components)
+        components =
+          build_components(disable_components(playback_state), style_components(playback_state))
+
+        {:ok, _} =
+          Nostrum.Api.Message.edit(channel_id, id,
+            content: "",
+            embeds: embeds,
+            components: components
+          )
 
       {:error, reason} ->
-        Logger.error("Error retrieving manager channel for guild #{guild_id}. Reason: #{inspect(reason)}")
+        Logger.error(
+          "Error retrieving manager channel for guild #{guild_id}. Reason: #{inspect(reason)}"
+        )
 
       :not_found ->
         Logger.info("No manager channel found for guild #{guild_id}")
@@ -66,34 +84,77 @@ defmodule ElNino.InteractiveSongController do
   defp build_embeds(guild_id, state) do
     case state do
       {:not_connected, _} ->
-        [ElNino.Embeds.two_liner_author_description("Bot is not connected to a voice channel.", "Use the `/play` command to start playing music.")]
+        [
+          ElNino.Embeds.two_liner_author_description(
+            "Bot is not connected to a voice channel.",
+            "Use the `/play` command to start playing music."
+          )
+        ]
 
       {:connecting, _} ->
-        [ElNino.Embeds.two_liner_author_description("Bot is connecting to a voice channel.", "Please wait while the bot connects.")]
+        [
+          ElNino.Embeds.two_liner_author_description(
+            "Bot is connecting to a voice channel.",
+            "Please wait while the bot connects."
+          )
+        ]
 
       {:waiting, _} ->
-        [ElNino.Embeds.two_liner_author_description("Bot is waiting for a song to be added to the queue.", "Please add a song using the `/play` command.")]
+        [
+          ElNino.Embeds.two_liner_author_description(
+            "Bot is waiting for a song to be added to the queue.",
+            "Please add a song using the `/play` command."
+          )
+        ]
 
       {:leaving, _} ->
-        [ElNino.Embeds.two_liner_author_description("Bot is leaving the voice channel.", "No further action is needed.")]
+        [
+          ElNino.Embeds.two_liner_author_description(
+            "Bot is leaving the voice channel.",
+            "No further action is needed."
+          )
+        ]
 
       {:leaving_timeout, _} ->
-        [ElNino.Embeds.two_liner_author_description("Bot has been inactive and left the voice channel.", "No further action is needed.")]
+        [
+          ElNino.Embeds.two_liner_author_description(
+            "Bot has been inactive and left the voice channel.",
+            "No further action is needed."
+          )
+        ]
 
       {:playing, song_payload} ->
-        Logger.info("Bot is playing a song in guild #{guild_id}. Updating message with current song.")
+        Logger.info(
+          "Bot is playing a song in guild #{guild_id}. Updating message with current song."
+        )
+
         song = ElNino.Lavalink.Client.decode_track(song_payload)["info"]
+
         [
           ElNino.Embeds.queue_embed(ElNino.SongQueue.get_all(guild_id)),
-          ElNino.Embeds.current_song_embed(song["title"], song["uri"], song["author"], song["artworkUrl"], song["length"])
+          ElNino.Embeds.current_song_embed(
+            song["title"],
+            song["uri"],
+            song["author"],
+            song["artworkUrl"],
+            song["length"]
+          )
         ]
 
       {:paused, song_payload} ->
         Logger.info("Bot is paused in guild #{guild_id}. Updating message with current song.")
         song = ElNino.Lavalink.Client.decode_track(song_payload)["info"]
+
         [
           ElNino.Embeds.queue_embed(ElNino.SongQueue.get_all(guild_id)),
-          ElNino.Embeds.current_song_embed(song["title"], song["uri"], song["author"], song["artworkUrl"], song["length"], "Bot is paused.")
+          ElNino.Embeds.current_song_embed(
+            song["title"],
+            song["uri"],
+            song["author"],
+            song["artworkUrl"],
+            song["length"],
+            "Bot is paused."
+          )
         ]
     end
   end
@@ -103,7 +164,14 @@ defmodule ElNino.InteractiveSongController do
 
     case Nostrum.Api.Channel.messages(channel_id, 100) do
       {:ok, []} ->
-        Nostrum.Api.Message.create(channel_id, %{embeds: [ElNino.Embeds.two_liner_author_description("Bot is not connected to a voice channel.", "Use the `/play` command to start playing music.")]})
+        Nostrum.Api.Message.create(channel_id, %{
+          embeds: [
+            ElNino.Embeds.two_liner_author_description(
+              "Bot is not connected to a voice channel.",
+              "Use the `/play` command to start playing music."
+            )
+          ]
+        })
 
       {:ok, [%Nostrum.Struct.Message{author: %{id: id}} = message]} when id == bot_id ->
         {:ok, message}
@@ -114,7 +182,10 @@ defmodule ElNino.InteractiveSongController do
         ensure_one_message(channel_id)
 
       {:error, reason} ->
-        Logger.error("Error retrieving messages for channel #{channel_id}. Reason: #{inspect(reason)}")
+        Logger.error(
+          "Error retrieving messages for channel #{channel_id}. Reason: #{inspect(reason)}"
+        )
+
         {:error, reason}
     end
   end
@@ -124,8 +195,20 @@ defmodule ElNino.InteractiveSongController do
       %{
         type: 1,
         components: [
-          %{type: 2, style: pause_style, custom_id: "music_pause", label: "Pause", disabled: pause?},
-          %{type: 2, style: resume_style, custom_id: "music_resume", label: "Resume", disabled: resume?},
+          %{
+            type: 2,
+            style: pause_style,
+            custom_id: "music_pause",
+            label: "Pause",
+            disabled: pause?
+          },
+          %{
+            type: 2,
+            style: resume_style,
+            custom_id: "music_resume",
+            label: "Resume",
+            disabled: resume?
+          },
           %{type: 2, style: skip_style, custom_id: "music_skip", label: "Skip", disabled: skip?},
           %{type: 2, style: 1, custom_id: "music_add", label: "Add Song", disabled: add?}
         ]

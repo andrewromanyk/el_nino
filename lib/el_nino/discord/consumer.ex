@@ -1,7 +1,7 @@
 defmodule ElNino.Consumer do
   @behaviour Nostrum.Consumer
 
-  @servers [966_052_378_023_444_560, 1_399_293_262_249_852_989, 696639042217050112]
+  @servers [966_052_378_023_444_560, 1_399_293_262_249_852_989, 696_639_042_217_050_112]
 
   require Logger
 
@@ -10,7 +10,6 @@ defmodule ElNino.Consumer do
 
   @commands [
     ElNino.Commands.Echo,
-
     ElNino.Commands.Play,
     ElNino.Commands.Pause,
     ElNino.Commands.Resume,
@@ -25,6 +24,7 @@ defmodule ElNino.Consumer do
   def handle_event({:READY, _, _}) do
     ApplicationCommand.bulk_overwrite_global_commands([])
     Enum.each(@servers, fn guild_id -> register_all_commands_guild(guild_id) end)
+    Nostrum.Api.Self.update_status(:online, {:custom, "/play"})
     # register_all_commands_global()
   end
 
@@ -32,7 +32,7 @@ defmodule ElNino.Consumer do
     ElNino.Handlers.Controller.handle_event(event)
   end
 
-  def handle_event({:INTERACTION_CREATE, %Interaction{type: 3}, _ws_state } = interaction) do
+  def handle_event({:INTERACTION_CREATE, %Interaction{type: 3}, _ws_state} = interaction) do
     ElNino.Handlers.Controller.handle_event(interaction)
   end
 
@@ -40,7 +40,10 @@ defmodule ElNino.Consumer do
     ElNino.Handlers.Controller.handle_event(interaction)
   end
 
-  def handle_event({:INTERACTION_CREATE, %Interaction{guild_id: guild_id, channel_id: channel_id} = interaction, _ws_state}) do
+  def handle_event(
+        {:INTERACTION_CREATE,
+         %Interaction{guild_id: guild_id, channel_id: channel_id} = interaction, _ws_state}
+      ) do
     if not is_nil(guild_id) and not is_nil(channel_id) do
       Logger.info("Interaction received in guild #{guild_id} and channel #{channel_id}.")
       :ets.insert(:last_interaction, {guild_id, channel_id})
@@ -70,7 +73,7 @@ defmodule ElNino.Consumer do
     end
   end
 
-  defp unregister_all_commands_guild(guild_id) do
+  def unregister_all_commands_guild(guild_id) do
     case ApplicationCommand.bulk_overwrite_guild_commands(guild_id, []) do
       {:ok, _} ->
         IO.puts("Successfully unregistered all commands for guild #{guild_id}!")

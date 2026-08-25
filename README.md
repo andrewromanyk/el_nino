@@ -27,22 +27,32 @@ The bot delegates music playback to a separate [LavaLink](https://github.com/lav
 Before running the bot, ensure you have `docker` and `docker compose` installed. [Docker Desktop](https://docs.docker.com/desktop/) is recommended, however you may also install standalone [Docker Engine](https://docs.docker.com/engine/install/) for headless systems.
 
 1. Create your own [Discord Application](https://discord.com/developers/home) (bot), retrieve its Application Token. [Official docs](https://docs.discord.com/developers/quick-start/getting-started#step-1-creating-an-app)
-2. Copy `.yaml` configuration files from [Lavalink Folder](lavalink/).
+2. Copy files from [Deployment Folder](deployment).
 3. Setup Environment Variables:
 
    - Necessary:
 
    ```sh
    export DISCORD_TOKEN=<discord_token> # Application Token of your bot.
+   export BOT_ID=<bot_id> # User id of your bot.
    ```
 
    - Optional:
 
    ```sh
    export YT_OAUTH_TOKEN=<youtube_token> # YouTube refresh token. Can be retrieved through LavaLink's instance's logs.
+   export LAVALINK_PASSWORD=<lavalink_password> # Password to the LavaLink node. Specified in compose file, is not crucial to bot's functionality.
    ```
 
    [Official docs on the token](https://github.com/lavalink-devs/youtube-source#using-oauth-tokens) [3rd party instruction](https://docs.dcs.aitsys.dev/articles/modules/audio/lavalink_v4/setup)
+
+   - Not advised to tamper with \ Optional:
+
+   ```sh
+   export CLIENT_NAME=<client_name> # Name of the client that handles connection to LavaLink. Does not influence anything, but required by LavaLink.
+   export LAVALINK_ENDPOINT=<lavalink_endpoint> # URL of the LavaLink node. Is automatically set by the compose file. Set to localhost:2333 if you manually run bot for tests.
+   ```
+
 4. Run the command in the same folder as the configuration files:
 
    ```sh
@@ -60,8 +70,8 @@ Currently the architecture consists of the main Nostrum Bot process communicatin
 
 ## Current goals
 
-- [X] Add basic music controls: adding songs, skipping, pausing \ resumig, leaving, clearing the queue
-- [X] Add ability to add playlists to queue
+- [x] Add basic music controls: adding songs, skipping, pausing \ resumig, leaving, clearing the queue
+- [x] Add ability to add playlists to queue
 - [ ] Add improved handling of commands: allow only users in VC to use commands, disallow some commands from being used by everyone
 - [x] Add ability to manage queues through interactions
 - [x] Allow bot to leave after some time of inactivity

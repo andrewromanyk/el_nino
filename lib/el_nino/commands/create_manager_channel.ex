@@ -29,7 +29,7 @@ defmodule ElNino.Commands.CreateManagerChannel do
     }
   end
 
-def handle(%Interaction{data: data, guild_id: guild_id} = interaction) do
+  def handle(%Interaction{data: data, guild_id: guild_id} = interaction) do
     case ElNino.ChannelStore.get(guild_id) do
       {:error, reason} ->
         ElNino.Response.response_with_embed(
@@ -44,7 +44,10 @@ def handle(%Interaction{data: data, guild_id: guild_id} = interaction) do
         if ElNino.Discord.Common.channel_exists?(guild_id, channel_id) do
           ElNino.Response.response_with_embed(
             interaction,
-            Embeds.two_liner_author_description("Manager channel already exists:", "<##{channel_id}>")
+            Embeds.two_liner_author_description(
+              "Manager channel already exists:",
+              "<##{channel_id}>"
+            )
           )
         else
           create_and_store_channel(interaction, guild_id, data)
@@ -55,26 +58,31 @@ def handle(%Interaction{data: data, guild_id: guild_id} = interaction) do
   defp create_and_store_channel(interaction, guild_id, data) do
     options = data.options || []
 
-    name = Enum.find_value(options, fn %{name: n, value: v} -> if n == "name", do: v end) || "manager-channel"
-    category_id = Enum.find_value(options, fn %{name: n, value: v} -> if n == "category", do: v end)
+    name =
+      Enum.find_value(options, fn %{name: n, value: v} -> if n == "name", do: v end) ||
+        "manager-channel"
 
-    {:ok, channel} = Nostrum.Api.Channel.create(guild_id, %{
-      name: name,
-      type: 0,
-      parent_id: category_id,
-      permission_overwrites: [
-        %{
-          deny: 0x0000000000000800,
-          id: guild_id,
-          type: 0
-        },
-        %{
-          allow: 0x0000000000000800,
-          id: Nostrum.Cache.Me.get().id,
-          type: 1
-        }
-      ]
-    })
+    category_id =
+      Enum.find_value(options, fn %{name: n, value: v} -> if n == "category", do: v end)
+
+    {:ok, channel} =
+      Nostrum.Api.Channel.create(guild_id, %{
+        name: name,
+        type: 0,
+        parent_id: category_id,
+        permission_overwrites: [
+          %{
+            deny: 0x0000000000000800,
+            id: guild_id,
+            type: 0
+          },
+          %{
+            allow: 0x0000000000000800,
+            id: Nostrum.Cache.Me.get().id,
+            type: 1
+          }
+        ]
+      })
 
     ElNino.ChannelStore.put(guild_id, channel.id)
 
@@ -83,7 +91,10 @@ def handle(%Interaction{data: data, guild_id: guild_id} = interaction) do
       Embeds.two_liner_author_description("Manager channel created:", "<##{channel.id}>")
     )
 
-    Nostrum.Api.Message.create(channel.id, "Placeholder message for the manager channel. This channel is used to manage the bot's music playback.")
+    Nostrum.Api.Message.create(
+      channel.id,
+      "Placeholder message for the manager channel. This channel is used to manage the bot's music playback."
+    )
 
     Nostrum.Api.Thread.create(channel.id, %{
       name: "Commands Thread",

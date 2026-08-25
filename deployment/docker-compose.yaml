@@ -32,6 +32,9 @@ services:
     environment:
       - DISCORD_TOKEN=${DISCORD_TOKEN}
       - LAVALINK_ENDPOINT=lavalink:2333
+      - LAVALINK_PASSWORD=${LAVALINK_PASSWORD}
+      - BOT_ID=${BOT_ID}
+      - CLIENT_NAME=${CLIENT_NAME}
     depends_on:
       - lavalink
     networks:

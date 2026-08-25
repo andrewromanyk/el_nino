@@ -24,7 +24,7 @@ defmodule ElNino.Application do
       {ElNino.Song.Supervisor, []},
       {ElNino.Lavalink.Supervisor, []},
       {ElNino.ChannelStore, []},
-      {Nostrum.Bot, bot_options},
+      {Nostrum.Bot, bot_options}
     ]
 
     :ets.new(:voice_states, [:set, :public, :named_table])
