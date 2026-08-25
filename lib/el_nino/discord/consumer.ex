@@ -70,6 +70,16 @@ defmodule ElNino.Consumer do
     end
   end
 
+  defp unregister_all_commands_guild(guild_id) do
+    case ApplicationCommand.bulk_overwrite_guild_commands(guild_id, []) do
+      {:ok, _} ->
+        IO.puts("Successfully unregistered all commands for guild #{guild_id}!")
+
+      {:error, %Nostrum.Error.ApiError{response: response}} ->
+        IO.puts("Failed to unregister commands for guild #{guild_id}! Error: #{response}")
+    end
+  end
+
   defp register_all_commands_guild(guild_id) do
     case ApplicationCommand.bulk_overwrite_guild_commands(
            guild_id,

@@ -25,7 +25,7 @@ defmodule ElNino.Commands.Volume do
   end
 
   def handle(%Interaction{data: %{options: [%{value: volume}]}, guild_id: guild_id} = interaction) do
-    ElNino.SongManager.volume(guild_id, volume)
+    ElNino.SongManager.volume(volume, guild_id)
 
     ElNino.Response.response_with_embed(
       interaction,

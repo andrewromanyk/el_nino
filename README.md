@@ -63,6 +63,6 @@ Currently the architecture consists of the main Nostrum Bot process communicatin
 - [X] Add basic music controls: adding songs, skipping, pausing \ resumig, leaving, clearing the queue
 - [X] Add ability to add playlists to queue
 - [ ] Add improved handling of commands: allow only users in VC to use commands, disallow some commands from being used by everyone
-- [ ] Add ability to manage queues through interactions
+- [x] Add ability to manage queues through interactions
 - [ ] Allow bot to leave after some time of inactivity
 - [ ] General: improve error handling

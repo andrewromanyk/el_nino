@@ -88,12 +88,12 @@ defmodule ElNino.Lavalink.Socket do
 
         guild_id = String.to_integer(guild_id_str)
 
-        ElNino.Response.message_with_embed(
-          ElNino.Discord.Common.get_last_channel_of_interaction(guild_id),
-          ElNino.Embeds.one_liner_author(
-            "Could not play track '#{track["info"]["title"]}'. Probably age-restricted. Playing next song."
-          )
-        )
+        # ElNino.Response.message_with_embed(
+        #   ElNino.Discord.Common.get_last_channel_of_interaction(guild_id),
+        #   ElNino.Embeds.one_liner_author(
+        #     "Could not play track '#{track["info"]["title"]}'. Probably age-restricted. Playing next song."
+        #   )
+        # )
 
         {:ok, state}
 

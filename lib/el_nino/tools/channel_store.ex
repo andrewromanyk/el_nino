@@ -9,7 +9,12 @@ defmodule ElNino.ChannelStore do
   def init(_) do
     Process.flag(:trap_exit, true)
 
-    table_path = ~c"channels.dets"
+    table_path = ~c"./storage/channels.dets"
+
+    dir_path = Path.dirname(table_path)
+
+    :ok = File.mkdir_p!(dir_path)
+
     {:ok, ref} = :dets.open_file(:channel_store, type: :set, file: table_path)
 
     {:ok, %{table: ref}}

@@ -13,6 +13,8 @@ services:
       - ./application.yaml:/opt/Lavalink/application.yaml
     networks:
       - lavalink
+    depends_on:
+      - webpo
     expose:
       # lavalink exposes port 2333 to connect to for other containers (this is for documentation purposes only)
       - 2333
@@ -28,11 +30,37 @@ services:
     environment:
       - DISCORD_TOKEN=${DISCORD_TOKEN}
       - LAVALINK_ENDPOINT=lavalink:2333
+      - POTTER_ENDPOINT=http://webpo:8080
     depends_on:
       - lavalink
     networks:
       - lavalink
+    volumes:
+      - bot-data:/release/storage
+  webpo:
+    image: ghcr.io/ashton318/webpo-generator:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: webpo-generator
+    ports:
+      - "${PORT:-8080}:${PORT:-8080}"
+    environment:
+      - NODE_ENV=production
+      - HOST=${HOST:-::}
+      - PORT=${PORT:-8080}
+      - WORKERS=${WORKERS:-1}
+      - QUEUE_SIZE=${QUEUE_SIZE:-32}
+      - MAX_PENDING_REQUESTS=${MAX_PENDING_REQUESTS:-256}
+      - REQUEST_TIMEOUT=${REQUEST_TIMEOUT:-30000}
+      - CACHE_SIZE=${CACHE_SIZE:-100}
+      - CACHE_TTL=${CACHE_TTL:-300000}
+      - VISITOR_TTL=${VISITOR_TTL:-36000000}
+      - API_TOKEN=${API_TOKEN:-}
+    restart: unless-stopped
 networks:
   # create a lavalink network you can add other containers to, to give them access to Lavalink
   lavalink:
     name: lavalink
+volumes:
+  bot-data:

@@ -18,12 +18,14 @@ plugins:
     oauth:
       enabled: true
       refreshToken: "${YT_OAUTH_TOKEN}"
+    remotePot:
+      url: "${POTTER_ENDPOINT}"
     remoteCipher:
       url: "https://cipher.kikkia.dev/"
 lavalink:
   plugins:
-    - dependency: "dev.lavalink.youtube:youtube-plugin:1.18.2"
-      snapshot: false
+    - dependency: "com.github.ashton045.youtube-source:youtube-plugin:feat~sabr~support-SNAPSHOT"
+      repository: "https://jitpack.io"
   server:
     password: "youshallnotpass"
     sources:

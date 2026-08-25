@@ -3,7 +3,7 @@ defmodule ElNino.Lavalink.Client do
 
   @headers [{"Authorization", "youshallnotpass"}]
   @header_json [{"Content-Type", "application/json"}]
-  @prefixes ["", "ytmsearch:", "ytsearch:", "scsearch:"]
+  @prefixes ["", "ytmsearch:", "scsearch:", "ytsearch:"]
 
   defp base_url do
     "http://" <> System.get_env("LAVALINK_ENDPOINT", "localhost:2333") <> "/v4"
