@@ -16,6 +16,7 @@ defmodule ElNino.Commands.PlayNext do
   end
 
   def handle(%Interaction{guild_id: guild_id} = interaction) do
+    Discord.Common.if_user_can_request_song_command(interaction, do: fn ->
     case Discord.Common.get_voice_channel_of_bot(guild_id) do
       nil ->
         ElNino.Response.response_with_embed(
@@ -44,5 +45,6 @@ defmodule ElNino.Commands.PlayNext do
             )
         end
     end
+    end)
   end
 end

@@ -25,11 +25,21 @@ defmodule ElNino.Commands.Volume do
   end
 
   def handle(%Interaction{data: %{options: [%{value: volume}]}, guild_id: guild_id} = interaction) do
-    ElNino.SongManager.volume(volume, guild_id)
+    if ElNino.Discord.Common.administrator?(guild_id, interaction.user.id) do
+      ElNino.Discord.Common.if_user_can_request_song_command(interaction, do: fn ->
+      ElNino.SongManager.volume(volume, guild_id)
 
-    ElNino.Response.response_with_embed(
-      interaction,
-      ElNino.Embeds.one_liner_author("Volume set to #{volume}%")
-    )
+      ElNino.Response.response_with_embed(
+        interaction,
+        ElNino.Embeds.one_liner_author("Volume set to #{volume}%")
+      )
+      end)
+    else
+      ElNino.Response.response_with_embed(
+        interaction,
+        ElNino.Embeds.one_liner_author("You must be an administrator to use this command."),
+        true
+      )
+    end
   end
 end

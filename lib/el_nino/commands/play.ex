@@ -25,6 +25,7 @@ defmodule ElNino.Commands.Play do
   end
 
   def handle(%Interaction{data: %{options: [%{value: query}]}, guild_id: guild_id} = interaction) do
+    Discord.Common.if_user_can_request_song_command(interaction, do: fn ->
     with(
       # if not in a voice channel, stop everything
       channel_id when not is_nil(channel_id) <-
@@ -91,5 +92,6 @@ defmodule ElNino.Commands.Play do
           Embeds.error("Could not load track", message)
         )
     end
+    end)
   end
 end

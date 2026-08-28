@@ -16,6 +16,7 @@ defmodule ElNino.Commands.Resume do
   end
 
   def handle(%Interaction{guild_id: guild_id} = interaction) do
+    ElNino.Discord.Common.if_user_can_request_song_command(interaction, do: fn ->
     case ElNino.SongManager.resume(guild_id) do
       {:ok, _message} ->
         ElNino.Response.response_with_embed(
@@ -29,5 +30,6 @@ defmodule ElNino.Commands.Resume do
           ElNino.Embeds.one_liner_author(message, Colors.warn_color())
         )
     end
+    end)
   end
 end

@@ -51,7 +51,7 @@ defmodule ElNino.Song.Supervisor do
   end
 
   def terminate_manager_queue_pair(guild_id) do
-    GenServer.cast(ElNino.Common.via_guild_manager_registry(guild_id), :terminate)
-    Agent.stop(ElNino.Common.via_guild_queue_registry(guild_id))
+    ElNino.SongManager.terminate(guild_id)
+    ElNino.SongQueue.terminate(guild_id)
   end
 end

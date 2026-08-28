@@ -4,6 +4,7 @@ defmodule ElNino.Commands.Leave do
   """
 
   alias Nostrum.Struct.Interaction
+  alias ElNino.Discord.Common
 
   def name(), do: "leave"
 
@@ -15,6 +16,7 @@ defmodule ElNino.Commands.Leave do
   end
 
   def handle(%Interaction{guild_id: guild_id} = interaction) do
+    Common.if_user_can_request_song_command(interaction, do: fn ->
     case ElNino.Discord.Common.get_voice_channel_of_bot(guild_id) do
       nil ->
         ElNino.Response.response_with_embed(
@@ -32,5 +34,6 @@ defmodule ElNino.Commands.Leave do
           true
         )
     end
+    end)
   end
 end

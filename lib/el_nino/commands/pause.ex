@@ -16,18 +16,20 @@ defmodule ElNino.Commands.Pause do
   end
 
   def handle(%Interaction{guild_id: guild_id} = interaction) do
-    case ElNino.SongManager.pause(guild_id) do
-      {:ok, _message} ->
-        ElNino.Response.response_with_embed(
-          interaction,
-          ElNino.Embeds.one_liner_author("Paused playback")
-        )
+    ElNino.Discord.Common.if_user_can_request_song_command(interaction, do: fn ->
+      case ElNino.SongManager.pause(guild_id) do
+        {:ok, _message} ->
+          ElNino.Response.response_with_embed(
+            interaction,
+            ElNino.Embeds.one_liner_author("Paused playback")
+          )
 
-      {:error, message} ->
-        ElNino.Response.response_with_embed(
-          interaction,
-          ElNino.Embeds.one_liner_author("Cannot pause: #{message}", Colors.error_color())
-        )
-    end
+        {:error, message} ->
+          ElNino.Response.response_with_embed(
+            interaction,
+            ElNino.Embeds.one_liner_author("Cannot pause: #{message}", Colors.error_color())
+          )
+      end
+    end)
   end
 end

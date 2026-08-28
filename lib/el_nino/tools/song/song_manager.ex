@@ -5,13 +5,11 @@ defmodule ElNino.SongManager do
   use GenServer, restart: :transient
   require Logger
 
-  alias ElNino.Common
-
   @doc """
   Starts the SongManager process.
   """
   def start_link([guild_id] = opts) do
-    GenServer.start_link(__MODULE__, opts, name: Common.via_guild_manager_registry(guild_id))
+    GenServer.start_link(__MODULE__, opts, name: via_guild_manager_registry(guild_id))
   end
 
   @impl true
@@ -20,39 +18,43 @@ defmodule ElNino.SongManager do
   end
 
   def play(song, guild_id) do
-    GenServer.call(Common.via_guild_manager_registry(guild_id), {:play, song, guild_id})
+    GenServer.call(via_guild_manager_registry(guild_id), {:play, song, guild_id})
   end
 
   def play_list(songs, guild_id) when is_list(songs) do
-    GenServer.call(Common.via_guild_manager_registry(guild_id), {:play_list, songs, guild_id})
+    GenServer.call(via_guild_manager_registry(guild_id), {:play_list, songs, guild_id})
   end
 
   def pause(guild_id) do
-    GenServer.call(Common.via_guild_manager_registry(guild_id), {:pause, guild_id})
+    GenServer.call(via_guild_manager_registry(guild_id), {:pause, guild_id})
   end
 
   def resume(guild_id) do
-    GenServer.call(Common.via_guild_manager_registry(guild_id), {:resume, guild_id})
+    GenServer.call(via_guild_manager_registry(guild_id), {:resume, guild_id})
   end
 
   def play_next(guild_id) do
-    GenServer.call(Common.via_guild_manager_registry(guild_id), {:play_next, guild_id})
+    GenServer.call(via_guild_manager_registry(guild_id), {:play_next, guild_id})
   end
 
   def volume(volume, guild_id) do
-    GenServer.call(Common.via_guild_manager_registry(guild_id), {:volume, volume, guild_id})
+    GenServer.call(via_guild_manager_registry(guild_id), {:volume, volume, guild_id})
   end
 
   def leave(guild_id) do
-    GenServer.call(Common.via_guild_manager_registry(guild_id), {:leave, guild_id})
+    GenServer.call(via_guild_manager_registry(guild_id), {:leave, guild_id})
   end
 
   def connected(guild_id) do
-    GenServer.cast(Common.via_guild_manager_registry(guild_id), {:connected, guild_id})
+    GenServer.cast(via_guild_manager_registry(guild_id), {:connected, guild_id})
   end
 
   def disconnected(guild_id) do
-    GenServer.call(Common.via_guild_manager_registry(guild_id), {:disconnected, guild_id})
+    GenServer.call(via_guild_manager_registry(guild_id), {:disconnected, guild_id})
+  end
+
+  def terminate(guild_id) do
+    GenServer.cast(via_guild_manager_registry(guild_id), :terminate)
   end
 
   @impl true
@@ -213,7 +215,7 @@ defmodule ElNino.SongManager do
 
       :leaving_timeout ->
         Logger.info(
-          "SongManager: Bot was inactive and left the voice channel for Guild #{guild_id}. No further action needed."
+          "SongManager: Bot was inactive and left the voice channel for Guild #{guild_id}."
         )
 
         if channel = ElNino.Discord.Common.get_last_channel_of_interaction(state.guild_id) do
@@ -354,6 +356,7 @@ defmodule ElNino.SongManager do
 
   @impl true
   def handle_cast(:terminate, state) do
+    ElNino.InteractiveSongController.update_state(state.guild_id, {:not_connected, nil})
     ElNino.InteractiveSongController.terminate(state.guild_id)
 
     {:stop, :normal, nil}
@@ -406,5 +409,9 @@ defmodule ElNino.SongManager do
   defp cancel_timeout(timer_ref) do
     Process.cancel_timer(timer_ref)
     nil
+  end
+
+  def via_guild_manager_registry(guild_id) do
+    ElNino.Common.via_registry(GuildSongManagerRegistry, guild_id)
   end
 end

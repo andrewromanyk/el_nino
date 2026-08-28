@@ -30,6 +30,7 @@ defmodule ElNino.Commands.CreateManagerChannel do
   end
 
   def handle(%Interaction{data: data, guild_id: guild_id} = interaction) do
+    if ElNino.Discord.Common.administrator?(guild_id, interaction.user.id) do
     case ElNino.ChannelStore.get(guild_id) do
       {:error, reason} ->
         ElNino.Response.response_with_embed(
@@ -52,6 +53,13 @@ defmodule ElNino.Commands.CreateManagerChannel do
         else
           create_and_store_channel(interaction, guild_id, data)
         end
+    end
+    else
+      ElNino.Response.response_with_embed(
+        interaction,
+        Embeds.one_liner_author("You must be an administrator to use this command."),
+        true
+      )
     end
   end
 
