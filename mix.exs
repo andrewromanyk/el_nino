@@ -22,10 +22,10 @@ defmodule ElNino.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:nostrum, github: "Kraigie/nostrum"},
+      {:nostrum, github: "SachsKaylee/nostrum", ref: "labels"},
       {:qex, "~> 0.5"},
       {:websockex, "~> 0.5.1"},
-      {:req, "~> 0.6.2"}
+      {:req, "~> 0.7.4"}
     ]
   end
 end

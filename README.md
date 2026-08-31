@@ -75,4 +75,5 @@ Currently the architecture consists of the main Nostrum Bot process communicatin
 - [x] Add improved handling of commands: allow only users in VC to use commands, disallow some commands from being used by everyone
 - [x] Add ability to manage queues through interactions
 - [x] Allow bot to leave after some time of inactivity
+- [ ] Add options for playlist handling (whether to add the whole playlist or onlty the first track). Is currently out of questions since Nostrum is yet to implement new DiscordAPI.
 - [ ] General: improve error handling

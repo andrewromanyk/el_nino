@@ -1,6 +1,7 @@
 defmodule ElNino.SongManager do
   # 10 minutes in milliseconds
   @timeout_time 10 * 60 * 1000
+  @playlist_limit 20
 
   use GenServer, restart: :transient
   require Logger
@@ -35,6 +36,10 @@ defmodule ElNino.SongManager do
 
   def play_next(guild_id) do
     GenServer.call(via_guild_manager_registry(guild_id), {:play_next, guild_id})
+  end
+
+  def skip_all(guild_id) do
+    GenServer.call(via_guild_manager_registry(guild_id), {:skip_all, guild_id})
   end
 
   def volume(volume, guild_id) do
@@ -99,6 +104,8 @@ defmodule ElNino.SongManager do
         _from,
         %{status: status} = state
       ) do
+    songs_tail = Enum.take(songs_tail, @playlist_limit) # prevent overloading the queue with too many songs at once
+    # TODO: Ask the user if they want to add only the song or the playlist part too
     case status do
       :not_connected ->
         Logger.info(
@@ -312,6 +319,40 @@ defmodule ElNino.SongManager do
 
         reply_and_update(
           {:error, "Probably not in a voice channel."},
+          %{state | status: :waiting, song: nil},
+          guild_id
+        )
+    end
+  end
+
+  @impl true
+  def handle_call({:skip_all, guild_id}, _from, %{status: status} = state) do
+    Logger.info(
+      "SongManager: Received skip_all command for guild #{guild_id}. Current status: #{status}"
+    )
+
+    cond do
+      status in [:playing, :paused] ->
+        Logger.info("SongManager: Skipping all songs in the queue.")
+
+        ElNino.SongQueue.clear(guild_id)
+        ElNino.Lavalink.Client.update_player(
+          :persistent_term.get(:lavalink_session_id),
+          guild_id,
+          encoded_track: nil
+        )
+
+        reply_and_update(
+          {:ok, "All songs skipped."},
+          %{state | status: :waiting, song: nil},
+          guild_id
+        )
+
+      true ->
+        Logger.info("SongManager: Received skip_all command while #{status}. Skipping action.")
+
+        reply_and_update(
+          {:ok, "Can't skip because bot is not playing or paused."},
           %{state | status: :waiting, song: nil},
           guild_id
         )

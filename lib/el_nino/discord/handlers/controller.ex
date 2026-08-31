@@ -52,6 +52,21 @@ defmodule ElNino.Handlers.Controller do
   end
 
   def handle_event(
+      {:INTERACTION_CREATE,
+        %Nostrum.Struct.Interaction{
+          type: 3,
+          data: %{custom_id: "music_skip_all"},
+          guild_id: guild_id
+        } = interaction, _ws_state}
+    ) do
+    ElNino.SongManager.skip_all(guild_id)
+
+    Nostrum.Api.Interaction.create_response(interaction, %{
+      type: 6
+    })
+  end
+
+  def handle_event(
         {:INTERACTION_CREATE,
          %Nostrum.Struct.Interaction{
            type: 3,
@@ -67,27 +82,36 @@ defmodule ElNino.Handlers.Controller do
         components: [
           %{
             # Action Row
-            type: 1,
-            components: [
+            type: 18,
+            label: "Search query or URL",
+            component:
               %{
                 # Text Input
                 type: 4,
                 custom_id: "song_query",
-                label: "Search query or URL",
+                # label: "Search query or URL",
                 # Short text
                 style: 1,
                 min_length: 1,
                 max_length: 200,
                 required: true
               }
-            ]
+          },
+          %{
+            # Action Row
+            type: 18,
+            label: "Add entire playlist (max 20 tracks)",
+            component:
+              %{
+                # Text Input
+                type: 23,
+                custom_id: "import_playlist",
+                default: false
+              }
+
           }
         ]
       }
-    })
-
-    Nostrum.Api.Interaction.create_response(interaction, %{
-      type: 6
     })
   end
 
@@ -105,9 +129,12 @@ defmodule ElNino.Handlers.Controller do
              custom_id: "search_modal",
              components: [
                %Nostrum.Struct.Message.Component{
-                 components: [
+                 component:
                    %Nostrum.Struct.Message.Component{custom_id: "song_query", value: query}
-                 ]
+               },
+               %Nostrum.Struct.Message.Component{
+                 component:
+                   %Nostrum.Struct.Message.Component{custom_id: "import_playlist", value: import_playlist}
                }
              ]
            },
@@ -133,8 +160,11 @@ defmodule ElNino.Handlers.Controller do
         {:ok, :track, %{"encoded" => encoded}} ->
           ElNino.SongManager.play(encoded, guild_id)
 
-        {:ok, :playlist, %{"tracks" => playlist}} ->
-          ElNino.SongManager.play_list(playlist |> Enum.map(& &1["encoded"]), guild_id)
+        {:ok, :playlist, %{"tracks" => playlist}} when import_playlist ->
+            ElNino.SongManager.play_list(playlist |> Enum.map(& &1["encoded"]), guild_id)
+
+        {:ok, :playlist, %{"tracks" => [first | _]}} ->
+            ElNino.SongManager.play(first["encoded"], guild_id)
       end
     end
   end

@@ -190,7 +190,7 @@ defmodule ElNino.InteractiveSongController do
     end
   end
 
-  defp build_components([pause?, resume?, skip?, add?], [pause_style, resume_style, skip_style]) do
+  defp build_components([pause?, resume?, skip?, add?, skip_all?], [pause_style, resume_style, skip_style, skip_all_style]) do
     [
       %{
         type: 1,
@@ -210,6 +210,7 @@ defmodule ElNino.InteractiveSongController do
             disabled: resume?
           },
           %{type: 2, style: skip_style, custom_id: "music_skip", label: "Skip", disabled: skip?},
+          %{type: 2, style: skip_all_style, custom_id: "music_skip_all", label: "Skip All", disabled: skip_all?},
           %{type: 2, style: 1, custom_id: "music_add", label: "Add Song", disabled: add?}
         ]
       }
@@ -218,15 +219,15 @@ defmodule ElNino.InteractiveSongController do
 
   defp disable_components(state) do
     case state do
-      {:not_connected, _} -> [true, true, true, false]
-      {:connecting, _} -> [true, true, true, false]
-      {:waiting, _} -> [true, true, true, false]
-      {:playing, _} -> [false, true, false, false]
-      {:paused, _} -> [true, false, false, false]
-      {:leaving, _} -> [true, true, true, false]
-      {:leaving_timeout, _} -> [true, true, true, false]
+      {:not_connected, _} ->    [true,  true,   true,   false, true]
+      {:connecting, _} ->       [true,  true,   true,   false, true]
+      {:waiting, _} ->          [true,  true,   true,   false, true]
+      {:playing, _} ->          [false, true,   false,  false, false]
+      {:paused, _} ->           [true,  false,  false,  false, false]
+      {:leaving, _} ->          [true,  true,   true,   false, true]
+      {:leaving_timeout, _} ->  [true,  true,   true,   false, true]
     end
   end
 
-  defp style_components(_state), do: [2, 2, 2]
+  defp style_components(_state), do: [2, 2, 2, 2]
 end
