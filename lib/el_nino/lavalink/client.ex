@@ -1,9 +1,11 @@
 defmodule ElNino.Lavalink.Client do
   require Logger
 
-  @headers [{"Authorization", "youshallnotpass"}]
+  @headers [{"Authorization", System.get_env("LAVALINK_PASSWORD")}]
   @header_json [{"Content-Type", "application/json"}]
   @prefixes ["", "ytmsearch:", "scsearch:", "ytsearch:"]
+
+  @timeout 5000
 
   defp base_url do
     "http://" <> System.get_env("LAVALINK_ENDPOINT", "localhost:2333") <> "/v4"
@@ -54,7 +56,8 @@ defmodule ElNino.Lavalink.Client do
   def load_tracks(query, prefix \\ "") do
     Req.get!("#{base_url()}/loadtracks",
       headers: @headers,
-      params: [identifier: "#{prefix}#{query}"]
+      params: [identifier: "#{prefix}#{query}"],
+      receive_timeout: @timeout
     )
     |> Map.get(:body)
   end
@@ -62,7 +65,8 @@ defmodule ElNino.Lavalink.Client do
   def decode_track(encoded_track) do
     Req.get!("#{base_url()}/decodetrack",
       headers: @headers,
-      params: [encodedTrack: encoded_track]
+      params: [encodedTrack: encoded_track],
+      receive_timeout: @timeout
     )
     |> Map.get(:body)
   end
@@ -70,7 +74,8 @@ defmodule ElNino.Lavalink.Client do
   def decode_tracks(encoded_tracks) when is_list(encoded_tracks) do
     Req.post!("#{base_url()}/decodetracks",
       headers: @headers,
-      json: encoded_tracks
+      json: encoded_tracks,
+      receive_timeout: @timeout
     )
     |> Map.get(:body)
   end
@@ -93,7 +98,8 @@ defmodule ElNino.Lavalink.Client do
           sessionId: discord_session_id,
           channelId: to_string(channel_id)
         }
-      }
+      },
+      receive_timeout: @timeout
     )
   end
 
@@ -105,7 +111,8 @@ defmodule ElNino.Lavalink.Client do
         track: %{
           encoded: encoded_track
         }
-      }
+      },
+      receive_timeout: @timeout
     )
   end
 
@@ -115,7 +122,8 @@ defmodule ElNino.Lavalink.Client do
       params: [noReplace: false],
       json: %{
         paused: paused
-      }
+      },
+      receive_timeout: @timeout
     )
   end
 
@@ -126,19 +134,22 @@ defmodule ElNino.Lavalink.Client do
       params: [noReplace: false],
       json: %{
         volume: volume
-      }
+      },
+      receive_timeout: @timeout
     )
   end
 
   def destroy_player(session_id, guild_id) do
     Req.delete!("#{base_url()}/sessions/#{session_id}/players/#{guild_id}",
-      headers: @headers
+      headers: @headers,
+      receive_timeout: @timeout
     )
   end
 
   def get_players(session_id) do
     Req.get!("#{base_url()}/sessions/#{session_id}/players",
-      headers: @headers
+      headers: @headers,
+      receive_timeout: @timeout
     )
   end
 end

@@ -135,8 +135,8 @@ defmodule ElNino.Embeds do
         if overflow > 0 do
           embed
           |> Embed.put_field(
-            "And #{overflow} more tracks...",
             "",
+            "And #{overflow} more tracks...",
             false
           )
         else

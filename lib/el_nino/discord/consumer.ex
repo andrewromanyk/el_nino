@@ -78,7 +78,7 @@ defmodule ElNino.Consumer do
       {:ok, _} ->
         IO.puts("Successfully unregistered all commands for guild #{guild_id}!")
 
-      {:error, %Nostrum.Error.ApiError{response: response}} ->
+      %Nostrum.Error.ApiError{response: response} ->
         IO.puts("Failed to unregister commands for guild #{guild_id}! Error: #{response}")
     end
   end
@@ -91,7 +91,7 @@ defmodule ElNino.Consumer do
       {:ok, _} ->
         IO.puts("Successfully registered all commands for guild #{guild_id}!")
 
-      {:error, %Nostrum.Error.ApiError{response: response}} ->
+      %Nostrum.Error.ApiError{response: response} ->
         IO.puts("Failed to register commands for guild #{guild_id}! Error: #{response}")
     end
   end
@@ -104,7 +104,7 @@ defmodule ElNino.Consumer do
       {:ok, _} ->
         IO.puts("Successfully registered all global commands!")
 
-      {:error, %Nostrum.Error.ApiError{response: response}} ->
+      %Nostrum.Error.ApiError{response: response} ->
         IO.puts("Failed to register global commands! Error: #{response}")
     end
   end

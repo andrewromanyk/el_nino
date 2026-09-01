@@ -70,10 +70,10 @@ Currently the architecture consists of the main Nostrum Bot process communicatin
 
 ## Current goals
 
-- [x] Add basic music controls: adding songs, skipping, pausing \ resumig, leaving, clearing the queue
-- [x] Add ability to add playlists to queue
-- [x] Add improved handling of commands: allow only users in VC to use commands, disallow some commands from being used by everyone
-- [x] Add ability to manage queues through interactions
-- [x] Allow bot to leave after some time of inactivity
-- [ ] Add options for playlist handling (whether to add the whole playlist or onlty the first track). Is currently out of questions since Nostrum is yet to implement new DiscordAPI.
+- [x] Basic music controls: adding songs, skipping, pausing \ resumig, leaving, clearing the queue.
+- [x] Ability to add playlists to queue.
+- [x] Improved handling of commands: only allow users in VC to use commands, disallow some commands from being used by everyone.
+- [x] Ability to manage queues through interactions.
+- [x] Bot leaves after some time of inactivity.
+- [x] Options for playlist handling (whether to add the whole playlist or only the first track). ~~Is currently out of questions since Nostrum is yet to implement new DiscordAPI.~~ The behaviour has been achieved by using a feature branch of the library.
 - [ ] General: improve error handling
