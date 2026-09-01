@@ -77,8 +77,7 @@ defmodule ElNino.Consumer do
     case ApplicationCommand.bulk_overwrite_guild_commands(guild_id, []) do
       {:ok, _} ->
         IO.puts("Successfully unregistered all commands for guild #{guild_id}!")
-
-      %Nostrum.Error.ApiError{response: response} ->
+      {:error, %Nostrum.Error.ApiError{response: response}} ->
         IO.puts("Failed to unregister commands for guild #{guild_id}! Error: #{response}")
     end
   end
@@ -91,7 +90,7 @@ defmodule ElNino.Consumer do
       {:ok, _} ->
         IO.puts("Successfully registered all commands for guild #{guild_id}!")
 
-      %Nostrum.Error.ApiError{response: response} ->
+      {:error, %Nostrum.Error.ApiError{response: response}} ->
         IO.puts("Failed to register commands for guild #{guild_id}! Error: #{response}")
     end
   end
@@ -104,7 +103,7 @@ defmodule ElNino.Consumer do
       {:ok, _} ->
         IO.puts("Successfully registered all global commands!")
 
-      %Nostrum.Error.ApiError{response: response} ->
+      {:error, %Nostrum.Error.ApiError{response: response}} ->
         IO.puts("Failed to register global commands! Error: #{response}")
     end
   end
