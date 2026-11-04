@@ -1,7 +1,7 @@
 defmodule ElNino.Lavalink.Client do
   require Logger
 
-  @headers [{"Authorization", System.get_env("LAVALINK_PASSWORD")}]
+  @headers [{"Authorization", System.get_env("LAVALINK_PASSWORD", "youshallnotpass")}] # TODO: very stupid, need replacing
   @header_json [{"Content-Type", "application/json"}]
   @prefixes ["", "ytmsearch:", "scsearch:", "ytsearch:"]
 

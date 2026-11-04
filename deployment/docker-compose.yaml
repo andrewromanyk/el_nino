@@ -1,3 +1,5 @@
+name: el_nino
+
 services:
   lavalink:
     # pin the image version to Lavalink v4 and use the alpine variant for a smaller image size
@@ -11,7 +13,7 @@ services:
       - YT_OAUTH_TOKEN=${YT_OAUTH_TOKEN}
       - POTTER_ENDPOINT=http://webpo:8080
     volumes:
-      - ./application.yaml:/opt/Lavalink/application.yaml
+      - ./application.yml:/opt/Lavalink/application.yml
       - ./plugins:/opt/Lavalink/plugins
     networks:
       - lavalink
@@ -43,7 +45,7 @@ services:
       - bot-data:/release/storage
   webpo:
     container_name: webpo
-    image: ghcr.io/ashton318/webpo-generator:latest
+    image: ghcr.io/ashton045/webpo-generator:sha-421ecfe
     build:
       context: .
       dockerfile: Dockerfile

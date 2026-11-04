@@ -60,7 +60,7 @@ Before running the bot, ensure you have `docker` and `docker compose` installed.
    ```
 
 > [!IMPORTANT]
-> The compose file relies on a Docker Hub image. It may be updated inconsistently, therefore it is recommended to create your own using existing [Dockerfile](Dockerfile). After that update `bot: image: <your_image_name>` in [compose.yaml](lavalink/compose.yaml?plain=1#L25)
+> The compose file relies on a Docker Hub image. It may be updated inconsistently, therefore it is recommended to create your own using existing [Dockerfile](Dockerfile). After that update `bot: image: <your_image_name>` in [compose.yaml](deployment/docker-compose.yaml?plain=1#L25)
 
 ## Architecture
 
