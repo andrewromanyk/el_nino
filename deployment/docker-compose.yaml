@@ -14,7 +14,7 @@ services:
       - POTTER_ENDPOINT=http://webpo:8080
     volumes:
       - ./application.yml:/opt/Lavalink/application.yml
-      - ./plugins:/opt/Lavalink/plugins
+      # - ./plugins:/opt/Lavalink/plugins
     networks:
       - lavalink
     depends_on:
