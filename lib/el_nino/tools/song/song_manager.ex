@@ -55,7 +55,7 @@ defmodule ElNino.SongManager do
   end
 
   def disconnected(guild_id) do
-    GenServer.call(via_guild_manager_registry(guild_id), {:disconnected, guild_id})
+    GenServer.cast(via_guild_manager_registry(guild_id), {:disconnected, guild_id})
   end
 
   def terminate(guild_id) do
@@ -201,7 +201,7 @@ defmodule ElNino.SongManager do
   end
 
   @impl true
-  def handle_call({:disconnected, guild_id}, _from, state) do
+  def handle_cast({:disconnected, guild_id}, state) do
     Logger.info(
       "SongManager: Bot has been disconnected from the voice channel for Guild #{guild_id}."
     )
@@ -247,8 +247,7 @@ defmodule ElNino.SongManager do
         end
     end
 
-    reply_and_update(
-      {:ok, "Disconnected from voice channel."},
+    noreply_and_update(
       %{state | status: :not_connected, song: nil},
       guild_id
     )

@@ -140,10 +140,15 @@ defmodule ElNino.Lavalink.Client do
   end
 
   def destroy_player(session_id, guild_id) do
-    Req.delete!("#{base_url()}/sessions/#{session_id}/players/#{guild_id}",
-      headers: @headers,
-      receive_timeout: @timeout
-    )
+    case Req.delete("#{base_url()}/sessions/#{session_id}/players/#{guild_id}",
+           headers: @headers,
+           receive_timeout: @timeout
+         ) do
+      {:ok, response} -> {:ok, response}
+      {:error, reason} ->
+        Logger.warning("Lavalink: Failed to destroy player for guild #{guild_id}: #{inspect(reason)}")
+        {:error, reason}
+    end
   end
 
   def get_players(session_id) do
