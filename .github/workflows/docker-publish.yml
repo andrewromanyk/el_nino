@@ -29,4 +29,5 @@ jobs:
             VERSION="0.0.1"
           fi
 
+          chmod +x dockerize.sh
           ./dockerize.sh --version "$VERSION" --push
