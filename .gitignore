@@ -24,4 +24,11 @@ el_nino-*.tar
 
 /.vscode/
 
+# Environment variables & secrets
+.env
+.env.*
+!.env.example
+.direnv/
+.envrc.local
+
 storage
