@@ -38,6 +38,10 @@ defmodule ElNino.SongManager do
     GenServer.call(via_guild_manager_registry(guild_id), {:play_next, guild_id})
   end
 
+  def handle_load_failed(guild_id) do
+    GenServer.call(via_guild_manager_registry(guild_id), {:handle_load_failed, guild_id})
+  end
+
   def skip_all(guild_id) do
     GenServer.call(via_guild_manager_registry(guild_id), {:skip_all, guild_id})
   end
@@ -251,6 +255,37 @@ defmodule ElNino.SongManager do
       %{state | status: :not_connected, song: nil},
       guild_id
     )
+  end
+
+  @impl true
+  def handle_call({:handle_load_failed, guild_id}, from, %{status: :playing, song: song} = state) do
+    retries = Map.get(state, :retries, 0)
+
+    if retries < 1 and not is_nil(song) do
+      Logger.warning(
+        "SongManager: Track failed to load in Lavalink on initial attempt. Automatically retrying playback once for guild #{guild_id}."
+      )
+
+      ElNino.Lavalink.Client.update_player(
+        :persistent_term.get(:lavalink_session_id),
+        guild_id,
+        encoded_track: song
+      )
+
+      reply_and_update(
+        {:ok, "Retrying track playback."},
+        Map.put(state, :retries, retries + 1),
+        guild_id
+      )
+    else
+      Logger.info("SongManager: Retries exceeded or no track to retry. Playing next song.")
+      handle_call({:play_next, guild_id}, from, Map.put(state, :retries, 0))
+    end
+  end
+
+  @impl true
+  def handle_call({:handle_load_failed, guild_id}, from, state) do
+    handle_call({:play_next, guild_id}, from, state)
   end
 
   @impl true

@@ -35,7 +35,6 @@ defmodule ElNino.Discord.RestKeepalive do
       case Nostrum.Api.Self.get() do
         {:ok, user} ->
           Nostrum.Cache.Me.put(user)
-          Nostrum.Cache.UserCache.update(user)
 
         {:error, reason} ->
           Logger.warning("RestKeepalive: failed to refresh bot user cache: #{inspect(reason)}")

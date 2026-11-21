@@ -66,10 +66,10 @@ defmodule ElNino.Lavalink.Socket do
 
           "loadFailed" ->
             Logger.info(
-              "Track failed to load in guild #{guild_id}. Attempting to play next song."
+              "Track failed to load in guild #{guild_id}. Attempting to retry or play next song."
             )
 
-            ElNino.SongManager.play_next(guild_id)
+            ElNino.SongManager.handle_load_failed(guild_id)
 
           "replaced" ->
             Logger.info("Track was replaced in guild #{guild_id}.")
