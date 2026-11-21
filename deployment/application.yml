@@ -11,10 +11,10 @@ plugins:
     allowDirectPlaylistIds: true
     clients:
       - MUSIC
+      - TV
       - ANDROID_VR
       - WEB
-      - WEBEMBEDDED 
-      - TV
+      - WEBEMBEDDED
     oauth:
       enabled: true
       refreshToken: "${YT_OAUTH_TOKEN}"
@@ -63,9 +63,9 @@ lavalink:
     soundcloudFilterOutPreviewTracks: false
     gc-warnings: true
     timeouts:
-      connectTimeoutMs: 3000
-      connectionRequestTimeoutMs: 3000
-      socketTimeoutMs: 3000
+      connectTimeoutMs: 10000
+      connectionRequestTimeoutMs: 10000
+      socketTimeoutMs: 10000
 
 metrics:
   prometheus:
