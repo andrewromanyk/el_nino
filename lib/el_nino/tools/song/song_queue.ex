@@ -41,11 +41,19 @@ defmodule ElNino.SongQueue do
   end
 
   def clear(guild_id) do
-    Agent.update(via_guild_queue_registry(guild_id), fn _queue -> Qex.new() end)
+    try do
+      Agent.update(via_guild_queue_registry(guild_id), fn _queue -> Qex.new() end)
+    catch
+      :exit, _ -> :ok
+    end
   end
 
   def terminate(guild_id) do
-    Agent.stop(via_guild_queue_registry(guild_id))
+    try do
+      Agent.stop(via_guild_queue_registry(guild_id))
+    catch
+      :exit, _ -> :ok
+    end
   end
 
   def via_guild_queue_registry(guild_id) do
