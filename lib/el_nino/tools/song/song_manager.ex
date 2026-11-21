@@ -1,6 +1,6 @@
 defmodule ElNino.SongManager do
-  # 10 minutes in milliseconds
-  @timeout_time 10 * 60 * 1000
+  # 5 minutes in milliseconds
+  @timeout_time 5 * 60 * 1000
   @playlist_limit 20
 
   use GenServer, restart: :transient

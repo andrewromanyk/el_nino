@@ -24,7 +24,9 @@ defmodule ElNino.Application do
       {ElNino.Song.Supervisor, []},
       {ElNino.Lavalink.Supervisor, []},
       {ElNino.ChannelStore, []},
-      {Nostrum.Bot, bot_options}
+      {Nostrum.Bot, bot_options},
+      # Keeps outbound REST connections active so cloud NATs (e.g. Azure) do not silently drop idle HTTP sockets
+      {ElNino.Discord.RestKeepalive, []}
     ]
 
     :ets.new(:voice_states, [:set, :public, :named_table])
